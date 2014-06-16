@@ -16,8 +16,8 @@ html
         script(type='text/javascript').
             function initialize() {
             var mapOptions = {
-            center: new google.maps.LatLng(-34.397, 150.644),
-            zoom: 8
+            center: new google.maps.LatLng(41.387, 2.168),
+            zoom: 12
             };
             var map = new google.maps.Map(document.getElementById("map-canvas"),
             mapOptions);
@@ -25,7 +25,7 @@ html
             google.maps.event.addDomListener(window, 'load', initialize);
     body
         // OBJECT PATH
-        h2 Object Path
+        h2(align='center') Object Path Mapper
         #objectPath
             fieldset
                 input#inputClientID(type='text', placeholder='clientID')

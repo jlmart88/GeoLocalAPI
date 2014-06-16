@@ -4,6 +4,42 @@
 		"selected_items":
 		[
 			[
+				"marker",
+				"markerArray"
+			],
+			[
+				"data",
+				"dataString"
+			],
+			[
+				"conte",
+				"contentType"
+			],
+			[
+				"cont",
+				"contentType"
+			],
+			[
+				"x",
+				"x-signature"
+			],
+			[
+				"verify",
+				"verifySignature"
+			],
+			[
+				"con",
+				"contentType"
+			],
+			[
+				"object",
+				"objectDetails"
+			],
+			[
+				"pr",
+				"preventDefault"
+			],
+			[
 				"dum",
 				"dump_index"
 			],
@@ -59,23 +95,7 @@
 			"file": "app.js",
 			"settings":
 			{
-				"buffer_size": 1642,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "routes/index.js",
-			"settings":
-			{
-				"buffer_size": 1637,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "public/javascripts/global.js",
-			"settings":
-			{
-				"buffer_size": 4129,
+				"buffer_size": 1643,
 				"line_ending": "Unix"
 			}
 		},
@@ -83,15 +103,7 @@
 			"file": "routes/geo.js",
 			"settings":
 			{
-				"buffer_size": 729,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "views/index.jade",
-			"settings":
-			{
-				"buffer_size": 2151,
+				"buffer_size": 8328,
 				"line_ending": "Unix"
 			}
 		}
@@ -120,11 +132,17 @@
 	},
 	"file_history":
 	[
+		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/views/index.jade",
 		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/views/layout.jade",
+		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/views/positionmap.jade",
+		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/public/javascripts/positionmap.js",
+		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/package.json",
+		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/public/javascripts/global.js",
+		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/public/stylesheets/style.css",
+		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/routes/index.js",
+		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/routes/geo.js",
 		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/views/userlist.jade",
 		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/views/newuser.jade",
-		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/views/index.jade",
-		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/package.json",
 		"/Users/jlmart88/Documents/Arduino/libraries/RRDSD/RRDSD.cpp",
 		"/Users/jlmart88/Documents/Arduino/libraries/RRDSD/RRDSD.h",
 		"/Users/jlmart88/Documents/Arduino/libraries/MySdFat/SdSpi.h",
@@ -193,6 +211,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"console.log",
 			"SdFat",
 			"error",
 			"::write",
@@ -231,7 +250,7 @@
 	"groups":
 	[
 		{
-			"selected": 2,
+			"selected": 1,
 			"sheets":
 			[
 				{
@@ -239,15 +258,15 @@
 					"file": "app.js",
 					"settings":
 					{
-						"buffer_size": 1642,
+						"buffer_size": 1643,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								345,
-								345
+								316,
+								312
 							]
 						],
 						"settings":
@@ -264,74 +283,18 @@
 				},
 				{
 					"buffer": 1,
-					"file": "routes/index.js",
-					"settings":
-					{
-						"buffer_size": 1637,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								33,
-								33
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "public/javascripts/global.js",
-					"settings":
-					{
-						"buffer_size": 4129,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								3179,
-								3179
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 914.0,
-						"translation.y": 483.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 3,
 					"file": "routes/geo.js",
 					"settings":
 					{
-						"buffer_size": 729,
+						"buffer_size": 8328,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								465,
-								465
+								271,
+								271
 							]
 						],
 						"settings":
@@ -342,34 +305,6 @@
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"file": "views/index.jade",
-					"settings":
-					{
-						"buffer_size": 2151,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2012,
-								2012
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Text/Plain text.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 415.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
