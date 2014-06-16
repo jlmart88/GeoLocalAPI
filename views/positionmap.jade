@@ -1,0 +1,40 @@
+doctype html
+html
+    head
+        meta(name='viewport', content='initial-scale=1.0, user-scalable=no')
+        style(type='text/css').
+            html { height: 100% }
+            body { height: 100%; margin: 0; padding: 0 }
+            #map-canvas { height: 80%; width: 80%; float:right }
+            #objectPath {float:left; height:100%; width:19%; max-width:19%; display:inline-block; padding:1px} 
+        
+        script(src='http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js')
+        script(src='http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/sha1.js')
+        //Justin's Google Maps API key
+        script(type='text/javascript', src='http://maps.googleapis.com/maps/api/js?key=AIzaSyAM3Is1kM34kJf9pkKCRMhWw731bqlBKB0')
+        script(type='text/javascript', src='/javascripts/positionmap.js')
+        script(type='text/javascript').
+            function initialize() {
+            var mapOptions = {
+            center: new google.maps.LatLng(-34.397, 150.644),
+            zoom: 8
+            };
+            var map = new google.maps.Map(document.getElementById("map-canvas"),
+            mapOptions);
+            }
+            google.maps.event.addDomListener(window, 'load', initialize);
+    body
+        // OBJECT PATH
+        h2 Object Path
+        #objectPath
+            fieldset
+                input#inputClientID(type='text', placeholder='clientID')
+                input#inputCustomID(type='text', placeholder='customID')
+                br
+                input#inputStart(type='text', placeholder='start')
+                input#inputEnd(type='text', placeholder='end')
+                br
+                button#btnObjectPath Object Path
+
+        // /OBJECT PATH
+        #map-canvas

@@ -1,0 +1,438 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"dum",
+				"dump_index"
+			],
+			[
+				"pa",
+				"path_length"
+			],
+			[
+				"p",
+				"path"
+			],
+			[
+				"extr",
+				"extract_min"
+			],
+			[
+				"F",
+				"FILE_WRITE"
+			],
+			[
+				"_dataLength-",
+				"_dataLength-_compareLength"
+			],
+			[
+				"fil",
+				"_fileName"
+			],
+			[
+				"_arch",
+				"_archiveCounter"
+			],
+			[
+				"_Ar",
+				"_archiveCounter"
+			],
+			[
+				"ha",
+				"hash_function"
+			],
+			[
+				"aux",
+				"aux_h2"
+			],
+			[
+				"au",
+				"aux_h2"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "app.js",
+			"settings":
+			{
+				"buffer_size": 1642,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "routes/index.js",
+			"settings":
+			{
+				"buffer_size": 1637,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "public/javascripts/global.js",
+			"settings":
+			{
+				"buffer_size": 4129,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "routes/geo.js",
+			"settings":
+			{
+				"buffer_size": 729,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "views/index.jade",
+			"settings":
+			{
+				"buffer_size": 2151,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 0.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/views/layout.jade",
+		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/views/userlist.jade",
+		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/views/newuser.jade",
+		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/views/index.jade",
+		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/package.json",
+		"/Users/jlmart88/Documents/Arduino/libraries/RRDSD/RRDSD.cpp",
+		"/Users/jlmart88/Documents/Arduino/libraries/RRDSD/RRDSD.h",
+		"/Users/jlmart88/Documents/Arduino/libraries/MySdFat/SdSpi.h",
+		"/Users/jlmart88/Documents/Arduino/libraries/MySdFat/SdBaseFilePrint.cpp",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/SdBaseFile.h",
+		"/Users/jlmart88/Documents/Course Materials/6.006/pset5/solution_template.py",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/SdBaseFilePrint.cpp",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/SdFat.cpp",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/SdFat.h",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/SdFatConfig.h",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/SdFatErrorPrint.cpp",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/SdFatmainpage.h",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/SdFatStructs.h",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/SdFatUtil.cpp",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/SdFatUtil.h",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/SdFile.cpp",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/SdFile.h",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/SdInfo.h",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/SdSpi.h",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/SdSpiArduino.cpp",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/SdSpiAVR.cpp",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/SdSpiMK20DX128.cpp",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/SdSpiSAM3X.cpp",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/SdStream.cpp",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/SdStream.h",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/SdVolume.cpp",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/SdVolume.h",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/ArduinoStream.h",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/bufstream.h",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/ios.h",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/istream.cpp",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/iostream.h",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/istream.h",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/MinimumSerial.cpp",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/MinimumSerial.h",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/ostream.cpp",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/ostream.h",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/Sd2Card.cpp",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/Sd2Card.h",
+		"/Users/jlmart88/Documents/Arduino/libraries/MySdFat/SdFat.h",
+		"/Users/jlmart88/Documents/Arduino/libraries/SdFat/SdBaseFile.cpp",
+		"/Users/jlmart88/Documents/Arduino/libraries/MySdFat/SdFat.cpp",
+		"/Users/jlmart88/Documents/Course Materials/6.004/computation_structures/design/project",
+		"/Users/jlmart88/Documents/Course Materials/6.004/computation_structures/design/pc",
+		"/Users/jlmart88/Documents/Course Materials/6.004/computation_structures/design/ctl",
+		"/Users/jlmart88/Documents/Course Materials/6.004/computation_structures/design/alu",
+		"/Users/jlmart88/Documents/Course Materials/6.004/computation_structures/design/32bitadder",
+		"/Users/jlmart88/Documents/Course Materials/6.004/computation_structures/design/regfile",
+		"/Users/jlmart88/Documents/Course Materials/6.004/koggestone.py",
+		"/Users/jlmart88/Documents/Course Materials/6.004/koggestone4.py"
+	],
+	"find":
+	{
+		"height": 35.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+			""
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"SdFat",
+			"error",
+			"::write",
+			"write",
+			"print",
+			"_totalElements",
+			"toArray",
+			"Serial",
+			"sizeof",
+			"long",
+			"Serial",
+			"\"freeMemory()=\"",
+			"NULL",
+			"getFile",
+			"SD.open",
+			"After",
+			"file.println(line)",
+			"reciprocal",
+			"hash_1"
+		],
+		"highlight": false,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"MySdFat",
+			"F(\"freeMemory()=\")"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 2,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "app.js",
+					"settings":
+					{
+						"buffer_size": 1642,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								345,
+								345
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "routes/index.js",
+					"settings":
+					{
+						"buffer_size": 1637,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								33,
+								33
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "public/javascripts/global.js",
+					"settings":
+					{
+						"buffer_size": 4129,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3179,
+								3179
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 914.0,
+						"translation.y": 483.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "routes/geo.js",
+					"settings":
+					{
+						"buffer_size": 729,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								465,
+								465
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "views/index.jade",
+					"settings":
+					{
+						"buffer_size": 2151,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2012,
+								2012
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 415.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 31.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"replace":
+	{
+		"height": 64.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 150.0,
+	"status_bar_visible": true
+}
