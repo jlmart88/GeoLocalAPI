@@ -21,35 +21,42 @@ router.post('/saveposition', function(req, res) {
     var db = req.db;
     //Insert the location into the position list first
     db.collection('positionlist').insert(req.body, function(err, result){
-        var clientID = result[0].clientID;
-        var customID = result[0].customID;
+        if (err!=null){
+            databaseResultHandler(res,err,object);
+        }
+        if (result != null){
+            var clientID = result[0].clientID;
+            var customID = result[0].customID;
 
-        var time = result[0].position.time;
-        console.log(result[0].position);
-        delete result[0]._id;
+            var time = result[0].position.time;
+            delete result[0]._id;
 
-        //Then insert the location into the last position list
-        db.collection('lastpositionlist').ensureIndex(
-            {'clientID':1, 'customID':1}, 
-            {unique:true}, 
-            function(err,result){
-                if (err != null) {
-                    callbackErrorHandler(err);
+            //Attempt the save position callback after the position was saved succesfully
+            makeCallback('savePosition');
+
+            //Then insert the location into the last position list
+            db.collection('lastpositionlist').ensureIndex(
+                {'clientID':1, 'customID':1}, 
+                {unique:true}, 
+                function(err,result){
+                    if (err != null) {
+                        callbackErrorHandler(err);
+                    }
+                });
+            db.collection('lastpositionlist').update(
+                {'clientID':clientID, 'customID':customID, 'position.time': {$lt:time}},
+                {'$set':result[0]},
+                {upsert:true},
+                function(err,result){
+                    if (err != null) {
+                        callbackErrorHandler(err);
+                    }else {
+                        //Attempt the geofence callback after we know the last position update was successful
+                        makeCallback(req,'geofence');
+                    }
                 }
-            });
-        db.collection('lastpositionlist').update(
-            {'clientID':clientID, 'customID':customID, 'position.time': {$lt:time}},
-            {'$set':result[0]},
-            {upsert:true},
-            function(err,result){
-                if (err != null) {
-                    callbackErrorHandler(err);
-                }else {
-                    //Attempt the geofence callback after we know the last position update was successful
-                    makeCallback(req,'geofence');
-                }
-            });
-        
+            );
+        }
         databaseResultHandler(res,err,result);
     });
 });
@@ -257,11 +264,16 @@ router.post('/geofence', function(req, res) {
  */
 router.get('/geofence', function(req, res) {
     var db = req.db;
-    console.log(req.query)
 
-    //First query the object collection
+    //First query the geofence collection
     db.collection('geofencelist').find(req.query).toArray(function (err, geofences) {
-        if (err!=null || geofences!=null){
+        if (err!=null){
+            databaseResultHandler(res,err,geofences);
+        }
+        if (geofences!=null){
+            geofences.forEach(function(geofence){
+                delete geofence._id;
+            });
             databaseResultHandler(res,err,geofences);
         }
         else databaseResultHandler(res,"No geofence data for clientID: "+req.query.clientID,"");
@@ -273,10 +285,10 @@ router.get('/geofence', function(req, res) {
  */
 router.delete('/geofence', function(req, res) {
     var db = req.db;
-    console.log(req.query)
+    console.log(req.body);
 
     //First query the object collection
-    db.collection('geofencelist').remove(req.query, function (err, geofences) {
+    db.collection('geofencelist').remove(req.body, function (err, geofences) {
         if (err!=null || geofences!=null){
             databaseResultHandler(res,err,geofences);
         }
@@ -376,7 +388,15 @@ function geofenceCallback(req,host,path){
     });
 }
 
-function objectPathCallback(req, host, path){}
+function savePositionCallback(req, host, path){
+    var db = req.db;
+    var body;
+    if (req.method == 'POST' || req.method == 'DELETE'){
+        body = req.body;
+    } else body = req.query;
+
+    sendRequest(host,path,body);
+}
 
 // Check if there is a callback listed in our database for this clientID, 
 // and if there is, then make the callback for this client
@@ -394,8 +414,8 @@ function makeCallback(req,type){
             if (type == 'geofence' && result.geofence.isActive){
                 geofenceCallback(req,result.geofence.host,result.geofence.path);
             }
-            if (type == 'objectPath' && result.objectPath.isActive){
-                objectPathCallback(req,result.objectPath.host,result.objectPath.path);
+            if (type == 'savePosition' && result.savePosition.isActive){
+                savePositionCallback(req,result.savePosition.host,result.savePosition.path);
             }
         }
         else {

@@ -6,35 +6,38 @@ html
             html { height: 100% }
             body { height: 100%; margin: 0; padding: 0 }
             #map-canvas { height: 80%; width: 80%; float:right }
-            #objectPath {float:left; height:100%; width:19%; max-width:19%; display:inline-block; padding:1px} 
+            #objectPath { float:center; height:auto; width:100%; max-width:100%; padding:1px} 
+            #listGeofences { height:auto; width:100%; max-width:100%; padding:1px}
+            #queryDiv {float:left; height:100%; width:19%; max-width:19%; display:inline-block; padding:1px} 
         
         script(src='http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js')
         script(src='http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/sha1.js')
         //Justin's Google Maps API key
         script(type='text/javascript', src='http://maps.googleapis.com/maps/api/js?key=AIzaSyAM3Is1kM34kJf9pkKCRMhWw731bqlBKB0')
         script(type='text/javascript', src='/javascripts/positionmap.js')
-        script(type='text/javascript').
-            function initialize() {
-            var mapOptions = {
-            center: new google.maps.LatLng(41.387, 2.168),
-            zoom: 12
-            };
-            var map = new google.maps.Map(document.getElementById("map-canvas"),
-            mapOptions);
-            }
-            google.maps.event.addDomListener(window, 'load', initialize);
     body
-        // OBJECT PATH
-        h2(align='center') Object Path Mapper
-        #objectPath
-            fieldset
-                input#inputClientID(type='text', placeholder='clientID')
-                input#inputCustomID(type='text', placeholder='customID')
-                br
-                input#inputStart(type='text', placeholder='start')
-                input#inputEnd(type='text', placeholder='end')
-                br
-                button#btnObjectPath Object Path
+        h2(align='center') Object Path and Geofence Mapper
+        #queryDiv
+            // OBJECT PATH
+            h3(align='center') Object Path
+            #objectPath
+                fieldset
+                    input#inputClientID(type='text', placeholder='clientID')
+                    input#inputCustomID(type='text', placeholder='customID')
+                    br
+                    input#inputStart(type='text', placeholder='start')
+                    input#inputEnd(type='text', placeholder='end')
+                    br
+                    button#btnObjectPath Plot Object Path
 
-        // /OBJECT PATH
+            // /OBJECT PATH
+            // LIST GEOFENCES
+            h3(align='center') Geofence
+            #listGeofences
+                fieldset
+                    input#inputClientID(type='text', placeholder='clientID')
+                    br
+                    button#btnListGeofences Plot Geofences
+
+        // /LIST GEOFENCES
         #map-canvas

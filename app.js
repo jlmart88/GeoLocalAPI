@@ -41,7 +41,7 @@ app.use('/', routes);
 
 //verify the signature if it is a geo request
 app.use(function(req,res,next){
-    if (req.path.indexOf('/geo')>-1){
+    if (req.path.lastIndexOf('/geo') == 0){
         verifySignature(req,function(err,verify){
             if (err!=null){
                 next(err);
