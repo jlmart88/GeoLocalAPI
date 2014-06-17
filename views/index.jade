@@ -14,11 +14,14 @@ block content
                 input#inputCustomID(type='text', placeholder='customID')
                 br
                 input#inputCategories(type='text', placeholder='category1,category2,...')
-                input#inputTags(type='text', placeholder='tag1,tag2, ...')
+                input#inputTags(type='text', placeholder='tag1,tag2,...')
                 br
                 input#inputRelated(type='text', placeholder='relatedID1,relatedID2,...')
                 br
                 button#btnAddObject Add Object
+                br
+                strong Response:
+                |  <span id='addObjectResponse'></span>
         // /ADD OBJECT
 
         // SAVE POSITION
@@ -31,6 +34,9 @@ block content
                 input#inputPosition(type='text', value='{"location": {"type":"Point", "coordinates":[2.168, 41.387]}, "time":1402407865, "accuracy":0.93, "speed":2.11, "altitude":100.14, "bearing":120.24}', placeholder='{"location": {"type":"Point", "coordinates":[2.168, 41.387]}, "time":1402407865, "accuracy":0.93, "speed":2.11, "altitude":100.14, "bearing":120.24}', size=43)
                 br
                 button#btnSavePosition Save Position
+                br
+                strong Response:
+                |  <span id='savePositionResponse'></span>
         // /SAVE POSITION
 
         // LAST POSITION
@@ -81,5 +87,49 @@ block content
                 |  <span id='objectPathResponse'></span>
         // /OBJECT PATH
 
+        // ADD GEOFENCE
+        h2 Add Geofence
+        #addGeofence
+            fieldset
+                input#inputClientID(type='text', placeholder='clientID')
+                input#inputGeofenceID(type='text', placeholder='geofenceID')
+                br
+                input#inputLng(type='text', placeholder='longitude')
+                input#inputLat(type='text', placeholder='latitude')
+                br
+                input#inputDistance(type='text', placeholder='distance (km)')
+                br
+                button#btnAddGeofence Add Geofence
+                br
+                strong Response:
+                |  <span id='addGeofenceResponse'></span>
+        // /ADD GEOFENCE
+
+        // LIST GEOFENCES
+        h2 List Geofences
+        #listGeofences
+            fieldset
+                input#inputClientID(type='text', placeholder='clientID')
+                br
+                button#btnListGeofences List Geofences
+                br
+                strong Response:
+                |  <span id='listGeofencesResponse'></span>
+
+        // /LIST GEOFENCES
+
+        // DELETE GEOFENCE
+        h2 Delete Geofences
+        #deleteGeofence
+            fieldset
+                input#inputClientID(type='text', placeholder='clientID')
+                input#inputGeofenceID(type='text', placeholder='geofenceID')
+                br
+                button#btnDeleteGeofence Delete Geofence
+                br
+                strong Response:
+                |  <span id='deleteGeofenceResponse'></span>
+
+        // /LIST GEOFENCES
 
     // /WRAPPER

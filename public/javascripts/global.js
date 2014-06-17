@@ -18,6 +18,15 @@ $(document).ready(function() {
     // Object Path button click
     $('#btnObjectPath').on('click', objectPath);
 
+    // Add Geofence button click
+    $('#btnAddGeofence').on('click', addGeofence);
+
+    // List Geofences button click
+    $('#btnListGeofences').on('click', listGeofences);
+
+    // Delete Geofence button click
+    $('#btnDeleteGeofence').on('click', deleteGeofence);
+
 });
 
 // Functions =============================================================
@@ -64,19 +73,11 @@ function addObject(event) {
             }
         }).done(function( response ) {
 
-            // Check for successful (blank) response
-            if (response.msg === '') {
+            console.log(response);
+            // Fill the response field on the webpage
+            $('#addObjectResponse').text(JSON.stringify(response));
 
-                // Clear the form inputs
-                $('#addObject fieldset input').val('');
-
-            }
-            else {
-
-                // If something goes wrong, alert the error message that our service returned
-                alert('Error: ' + response.msg);
-
-            }
+            
         });
     }
     else {
@@ -128,19 +129,10 @@ function savePosition(event) {
             }
         }).done(function( response ) {
 
-            // Check for successful (blank) response
-            if (response.msg === '') {
+            console.log(response);
+            // Fill the response field on the webpage
+            $('#savePositionResponse').text(JSON.stringify(response));
 
-                // Clear the form inputs
-                $('#savePosition fieldset input').val('');
-
-            }
-            else {
-
-                // If something goes wrong, alert the error message that our service returned
-                alert('Error: ' + response.msg);
-
-            }
         });
     }
     else {
@@ -256,6 +248,7 @@ function nearbyObjects(event) {
     }
 };
 
+// List the positions of an object
 function objectPath(event) {
     event.preventDefault();
 
@@ -311,3 +304,153 @@ function objectPath(event) {
         return false;
     }
 }
+
+// Add geofence
+function addGeofence(event) {
+    event.preventDefault();
+
+    // Super basic validation - increase errorCount variable if any fields are blank
+    var errorCount = 0;
+    $('#addGeofence input').each(function(index, val) {
+        if($(this).val() === '') { errorCount++; }
+    });
+
+    // Check and make sure errorCount's still at zero
+    if(errorCount === 0) {
+
+        // If it is, compile all user info into one object
+        var newObject = {
+            'clientID': $('#addGeofence fieldset input#inputClientID').val(),
+            'geofenceID': $('#addGeofence fieldset input#inputGeofenceID').val(),
+            'lng': $('#addGeofence fieldset input#inputLng').val().split(","),
+            'lat': $('#addGeofence fieldset input#inputLat').val().split(","),
+            'distance': $('#addGeofence fieldset input#inputDistance').val().split(","),
+        }
+
+        //create a hash
+        var dataString = JSON.stringify(newObject);
+        var timeString = (new Date).getTime()/1000;
+        var signature = CryptoJS.SHA1(dataString+timeString+clientSecret);
+
+
+        // Use AJAX to post the object to our service
+        $.ajax({
+            type: 'POST',
+            data: dataString,
+            url: '/geo/geofence',
+            contentType: 'application/json',
+            dataType: 'JSON',
+            headers:{
+                'X-Signature':signature,
+                'X-Authentication-Type':'SHA1',
+                'X-Timestamp':timeString
+            }
+        }).done(function( response ) {
+
+            console.log(response);
+            // Fill the response field on the webpage
+            $('#addGeofenceResponse').text(JSON.stringify(response));
+
+        });
+    }
+    else {
+        // If errorCount is more than 0, error out
+        alert('Please fill in all fields');
+        return false;
+    }
+};
+
+// List geofences
+function listGeofences(event) {
+    event.preventDefault();
+
+    // Super basic validation - increase errorCount variable if any fields are blank
+    var errorCount = 0;
+    $('#listGeofences input').each(function(index, val) {
+        if($(this).val() === '') { errorCount++; }
+    });
+
+    // Check and make sure errorCount's still at zero
+    if(errorCount === 0) {
+
+        var newObject = {
+            'clientID': $('#listGeofences fieldset input#inputClientID').val()
+        };
+
+        var dataString = JSON.stringify(newObject);
+        var timeString = (new Date).getTime()/1000;
+        var signature = CryptoJS.SHA1(dataString+timeString+clientSecret);
+
+        // Use AJAX to post the object to our service
+        $.ajax({
+            type: 'GET',
+            data: newObject,
+            url: '/geo/geofence',
+            dataType: 'JSON',
+            headers:{
+                'X-Signature':signature,
+                'X-Authentication-Type':'SHA1',
+                'X-Timestamp':timeString
+            }
+        }).done(function( response ) {
+
+                console.log(response);
+                // Fill the response field on the webpage
+                $('#listGeofencesResponse').text(JSON.stringify(response));
+
+        });
+    }
+    else {
+        // If errorCount is more than 0, error out
+        alert('Please fill in all fields');
+        return false;
+    }
+};
+
+// Delete geofence
+function deleteGeofence(event) {
+    event.preventDefault();
+
+    // Super basic validation - increase errorCount variable if any fields are blank
+    var errorCount = 0;
+    $('#deleteGeofence input').each(function(index, val) {
+        if($(this).val() === '') { errorCount++; }
+    });
+
+    // Check and make sure errorCount's still at zero
+    if(errorCount === 0) {
+
+        var newObject = {
+            'clientID': $('#listGeofences fieldset input#inputClientID').val(),
+            'geofenceID': $('#deleteGeofence fieldset input#inputGeofenceID').val()
+        };
+
+        var dataString = JSON.stringify(newObject);
+        var timeString = (new Date).getTime()/1000;
+        var signature = CryptoJS.SHA1(dataString+timeString+clientSecret);
+
+        // Use AJAX to post the object to our service
+        $.ajax({
+            type: 'DELETE',
+            data: newObject,
+            url: '/geo/geofence',
+            dataType: 'JSON',
+            headers:{
+                'X-Signature':signature,
+                'X-Authentication-Type':'SHA1',
+                'X-Timestamp':timeString
+            }
+        }).done(function( response ) {
+
+                console.log(response);
+                // Fill the response field on the webpage
+                $('#deleteGeofenceResponse').text(JSON.stringify(response));
+
+        });
+    }
+    else {
+        // If errorCount is more than 0, error out
+        alert('Please fill in all fields');
+        return false;
+    }
+};

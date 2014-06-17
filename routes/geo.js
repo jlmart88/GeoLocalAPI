@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var async = require('async');
 var crypto = require('crypto');
-var http = require('http')
+var http = require('http');
 
 /*
  * POST to addobject.
@@ -14,11 +14,9 @@ router.post('/addobject', function(req, res) {
             var db = req.db;
             //Insert the object into the object list
             db.collection('objectlist').insert(req.body, function(err, result){
-                res.send(
-                    (err === null) ? { msg: '' } : { msg: err }
-                );
+                databaseResultHandler(res,err,result);
             });
-        } else res.send({msg:"Unauthorized request"});
+        } else unauthorizedErrorHandler(res);
     });
 });
 
@@ -29,30 +27,42 @@ router.post('/saveposition', function(req, res) {
     //Check the signature first
     verifySignature(req, function(err,verify){
         if (verify){
+
             var db = req.db;
             //Insert the location into the position list first
             db.collection('positionlist').insert(req.body, function(err, result){
                 var clientID = result[0].clientID;
                 var customID = result[0].customID;
+
                 var time = result[0].position.time;
+                console.log(result[0].position);
                 delete result[0]._id;
+
                 //Then insert the location into the last position list
                 db.collection('lastpositionlist').ensureIndex(
                     {'clientID':1, 'customID':1}, 
                     {unique:true}, 
-                    function(err,replies){}
-                    );
+                    function(err,result){
+                        if (err != null) {
+                            callbackErrorHandler(err);
+                        }
+                    });
                 db.collection('lastpositionlist').update(
-                    {'clientID':clientID, 'customID':customID, 'position.time': {$lte:time}},
-                    result[0],
+                    {'clientID':clientID, 'customID':customID, 'position.time': {$lt:time}},
+                    {'$set':result[0]},
                     {upsert:true},
-                    function(err, result){}
-                    );
-                res.send(
-                    (err === null) ? { msg: '' } : { msg: err }
-                );
+                    function(err,result){
+                        if (err != null) {
+                            callbackErrorHandler(err);
+                        }else {
+                            //Attempt the geofence callback after we know the last position update was successful
+                            makeCallback(req,'geofence');
+                        }
+                    });
+                
+                databaseResultHandler(res,err,result);
             });
-        } else res.send({msg:"Unauthorized request"});
+        } else unauthorizedErrorHandler(res);
     });
 });
 
@@ -67,24 +77,28 @@ router.get('/lastposition', function(req, res) {
 
             //First query the object collection
             db.collection('objectlist').findOne(req.query, function (err, object) {
+                if (err!=null){
+                    databaseResultHandler(res,err,object);
+                }
                 if (object != null){
                     //Then query the position collection, sorting by the timestamp
                     db.collection('lastpositionlist').findOne(req.query, function(err, position){
+                        if (err!=null){
+                            databaseResultHandler(res,err,position);
+                        }
                         //Add the position data to our object and return it
                         if (position!=null){
                             delete position.clientID;
                             delete position.customID;
                             object.position = position.position;
-                        } else object.position = 'No position data in database';
-                        //Check if we have a callback associated with this clientID and request 
-                        makeCallback(req);
+                        } else databaseResultHandler(res,"No position data for object with customID: "+req.query.customID,"");
                         delete object._id;
-                        res.json(object);
+                        databaseResultHandler(res,err,object);
                     });
                 }
-                else res.send({msg:'No object in database'});
+                else databaseResultHandler(res,"No object data for object with customID: "+req.query.customID,"");
             });
-        } else res.send({msg:"Unauthorized request"});
+        } else unauthorizedErrorHandler(res);
     });
 });
 
@@ -105,7 +119,11 @@ router.get('/nearbyobjects', function(req, res) {
             } else offset = parseFloat(req.query.offset);
 
             //Create a 2dsphere index in the last position list to allow for geoNear query
-            db.collection('lastpositionlist').ensureIndex({'position.location':'2dsphere'}, function(err,replies){});
+            db.collection('lastpositionlist').ensureIndex({'position.location':'2dsphere'}, function(err,result){
+                if (err!=null){
+                    databaseResultHandler(res,err,result);
+                }
+            });
          
             req.query.location.coordinates = [parseFloat(req.query.location.coordinates[0]),parseFloat(req.query.location.coordinates[1])];
             
@@ -115,6 +133,9 @@ router.get('/nearbyobjects', function(req, res) {
                 spherical:'true',
                 query: {'position.time': {$gte:epoch-offset}},
                 maxDistance:parseFloat(req.query.distance)}, function (err, positions) {
+                    if (err!=null){
+                    databaseResultHandler(res,err,positions);
+                    }
                     
                     // larger scope array to hold the augmented data we will create
                     var results = [];
@@ -125,13 +146,15 @@ router.get('/nearbyobjects', function(req, res) {
                             if (!(position.obj.clientID == clientID && position.obj.customID == customID)){
 
                                 db.collection('objectlist').findOne({'clientID':position.obj.clientID, 'customID':position.obj.customID}, function (err, object) {
+                                    if (err!=null){
+                                        databaseResultHandler(res,err,object);
+                                    }
                                     if (object!=null){
-
                                         position.obj.categories = object.categories;
                                         position.obj.tags = object.tags;
                                         position.obj.related = object.related;
                                         delete position.obj._id;
-                                    } else position.obj.msg = "No object in database";
+                                    } else callback("No object data for object with customID "+customID,"");
                                     results.push(position);
                                     callback();
                                 });
@@ -142,21 +165,22 @@ router.get('/nearbyobjects', function(req, res) {
                         }, function(err){
                             //Check for a callback associated with this clientID/request
                             makeCallback(req);
-                            res.json(results);
+                            console.log(results);
+                            databaseResultHandler(res,err,results);
                         });
                         
                         
-                    } else res.send({msg:'No positions in database'});
+                    } else databaseResultHandler(res,"No position data in database","");
                 }
             );
-        } else res.send({msg:"Unauthorized request"});
+        } else unauthorizedErrorHandler(res);
     });
 });
 
 /*
  * GET objectPath.
  */
-router.get('/objectPath', function(req, res) {
+router.get('/objectpath', function(req, res) {
     //Check signature first
     verifySignature(req, function(err,verify){
         if (verify){
@@ -181,28 +205,234 @@ router.get('/objectPath', function(req, res) {
 
             //Query the position collection
             db.collection('positionlist').find(req.query).sort({'position.time':1}).toArray(function (err, items) {
+                if (err != null){
+                    databaseResultHandler(res,err,items);
+                }
                 if (items != null){
                     var results = [];
                     items.forEach(function(item) {
                         results.push(item.position);
                     })
-                    res.json(results);
-                } else res.send({msg:'No object in database'});
+                    databaseResultHandler(res,err,results);
+                } else databaseResultHandler(res,"No object data for object with customID "+customID,"");
             });
-        } else res.send({msg:"Unauthorized request"});
+        } else unauthorizedErrorHandler(res);
     });
 });
+
+/*
+ * POST to geofence.
+ */
+router.post('/geofence', function(req, res) {
+    //Check signature first
+    verifySignature(req, function(err,verify){
+        if (verify){
+            var db = req.db;
+            var dist = parseFloat(req.body.distance);
+            var lngDeg = parseFloat(req.body.lng);
+            var latDeg = parseFloat(req.body.lat);
+            var latRad = latDeg*Math.PI/180;
+
+            //Compute the square geofence around the object
+            //6371.0 km = radius of Earth
+            var rRad = (dist/6371.0)
+            var rDeg = rRad*180/Math.PI;
+            var latMin = latDeg - rDeg;
+            var latMax = latDeg + rDeg;
+
+            var lngDRad = Math.asin(Math.sin(rRad)/Math.cos(latRad));
+            var lngMin = lngDeg - lngDRad*180/Math.PI;
+            var lngMax = lngDeg + lngDRad*180/Math.PI;
+
+            if (latMax > 90){
+                lngMin = -180;
+                latMax = 90;
+                lngMax = 180;
+            }
+            if (latMin < -90){
+                latMin = -90;
+                lngMin = -180;
+                lngMax = 180;
+            }
+            if (lngMin < -180){
+                lngMin += 180;
+            }
+            if (lngMax > 180){
+                lngMax -= 180;
+            }
+
+            var boundingBox=[[lngMin,latMin],[lngMin,latMax],[lngMax,latMax],[lngMax,latMin],[lngMin,latMin]];
+            
+            var object = {
+                clientID:req.body.clientID,
+                geofenceID:req.body.geofenceID,
+                location:{
+                    type:"Polygon",
+                    coordinates:[boundingBox]
+                },
+                center:{
+                    type:"Point",
+                    coordinates:[lngDeg,latDeg]
+                }
+            };
+
+            //Insert the object into the object list
+            db.collection('geofencelist').insert(object, function(err, result){
+                databaseResultHandler(res,err,result);
+            });
+        } else unauthorizedErrorHandler(res);
+    });
+});
+
+/*
+ * GET geofence.
+ */
+router.get('/geofence', function(req, res) {
+    //Check the signature
+    verifySignature(req, function(err,verify){
+        if (verify){
+            var db = req.db;
+            console.log(req.query)
+
+            //First query the object collection
+            db.collection('geofencelist').find(req.query).toArray(function (err, geofences) {
+                if (err!=null || geofences!=null){
+                    databaseResultHandler(res,err,geofences);
+                }
+                else databaseResultHandler(res,"No geofence data for clientID: "+req.query.clientID,"");
+            });
+        } else unauthorizedErrorHandler(res);
+    });
+});
+
+/*
+ * DELETE geofence.
+ */
+router.delete('/geofence', function(req, res) {
+    //Check the signature
+    verifySignature(req, function(err,verify){
+        if (verify){
+            var db = req.db;
+            console.log(req.query)
+
+            //First query the object collection
+            db.collection('geofencelist').remove(req.query, function (err, geofences) {
+                if (err!=null || geofences!=null){
+                    databaseResultHandler(res,err,geofences);
+                }
+                else databaseResultHandler(res,"No geofence data for clientID: "+req.query.clientID,"");
+            });
+        } else unauthorizedErrorHandler(res);
+    });
+});
+
+//This function will make the geofence callback if it is included in the client callback list
+//This keeps track of what objects are in what geofences by modifying the "geofence" parameter
+//  of the object in the object list
+function geofenceCallback(req,host,path){
+    var db = req.db;
+    var body;
+    if (req.method == 'POST' || req.method == 'DELETE'){
+        body = req.body;
+    } else body = req.query;
+
+    //Ensure there is a 2dsphere index in the geofence list to allow for geoIntersects query
+    db.collection('geofencelist').ensureIndex({'location':'2dsphere'}, function(err,result){
+        if (err!=null){
+            callbackErrorHandler(err);
+        }
+    });
+
+    //First get the previous geofence information about this object
+    db.collection('objectlist').findOne({'clientID':body.clientID,'customID':body.customID}, function(err,result){
+        if (err!=null){
+            callbackErrorHandler(err);
+        }
+        if (result!=null){
+            var previousGeofences = [];
+            if (result.geofences != null){
+                previousGeofences = result.geofences;
+            }
+            // Then, find what geofences it is currently in
+            db.collection('geofencelist').find({
+                'location':{
+                    '$geoIntersects': {
+                        '$geometry': body.position.location
+                    }
+                },'clientID':body.clientID}).toArray(function(err, results){
+
+                    if (err!=null){
+                        callbackErrorHandler(err);
+                    }
+                    if (results!=null){
+                        // Sort the geofences into entered, exited, and stillIn
+                        var entered = [];
+                        var exited = [];
+                        var stillIn = [];
+
+                        var resultsGeofences = results.map(function(item,index,array){
+                            return item.geofenceID;
+                        });
+
+                        for (geofence in previousGeofences){
+                            if (resultsGeofences.indexOf(previousGeofences[geofence]) > -1){
+                                console.log("Pushing to stillIn: "+previousGeofences[geofence]);
+                                stillIn.push(previousGeofences[geofence]);
+                            } else {
+                                console.log("Pushing to exited: "+previousGeofences[geofence]);
+                                exited.push(previousGeofences[geofence]);
+                            }
+                        }
+                        for (geofence in resultsGeofences){
+                            console.log(previousGeofences.indexOf(resultsGeofences[geofence]))
+                            if (previousGeofences.indexOf(resultsGeofences[geofence])> -1){ 
+                            } else {
+                                console.log("Pushing to entered: "+resultsGeofences[geofence]);
+                                entered.push(resultsGeofences[geofence]);
+                            }
+                        }
+
+                        //Update the object list with the stillIn+entered geofences
+                        db.collection('objectlist').update(
+                            {'clientID':body.clientID, 'customID':body.customID},
+                            {$set:{'geofences':stillIn.concat(entered)}},
+                            function(err,result){
+                                if (err != null) {
+                                    callbackErrorHandler(err);
+                                } else{
+                                    //Send the geofence callback request with the entered and exited geofence information
+                                    sendRequest(host,path,{'customID':body.customID,'entered':entered,'exited':exited});
+                                }
+                            }
+                        );
+                    }
+                    else{
+                        callbackErrorHandler("No geofence data");
+                    }
+                }
+            );
+        }
+        else{
+            callbackErrorHandler("No object data with customID: "+body.customID);
+        }
+    });
+}
+
+function objectPathCallback(req, host, path){}
 
 // Verify the signature header attached to a request
 function verifySignature(req, callback){
     var db = req.db;
     var body;
     //console.log(req);	
-    if (req.method == 'POST'){
+    if (req.method == 'POST' || req.method == 'DELETE'){
         body = req.body;
     } else body = req.query;
     db.collection('clientidlist').findOne({'clientID':body.clientID}, function(err, result){
-        if (err==null && result!=null){
+        if (err!=null){
+            databaseResultHandler(res,err,result);
+        }
+        if (result!=null){
             console.log("Server-side String:");
     		console.log(JSON.stringify(body)+req.headers['x-timestamp']+result.clientSecret);
     		
@@ -229,44 +459,25 @@ function verifySignature(req, callback){
     });
 }
 
-//Check if there is a callback listed in our database for this clientID, 
+// Check if there is a callback listed in our database for this clientID, 
 // and if there is, then make the callback for this client
-function makeCallback(req){
+function makeCallback(req,type){
     var db = req.db;
     var body;
-    if (req.method == 'POST'){
+    if (req.method == 'POST' || req.method == 'DELETE'){
         body = req.body;
     } else body = req.query;
-    console.log(req.route.path);
-    db.collection('clientcallbacklist').findOne({'clientID':body.clientID,'requestPath':req.route.path}, function(err, result){
-        if (err==null && result!=null && result.callback){
-            console.log(result);
-
-            var options = {
-                host: result.host,
-                port: result.port,
-                path: result.path,
-                method: result.method
-            };
-
-            console.log(options);
-            var request = http.request(options, function(res) {
-                //Do something with the response if necessary, for now just log it
-                console.log('STATUS: ' + res.statusCode);
-                console.log('HEADERS: ' + JSON.stringify(res.headers));
-                res.setEncoding('utf8');
-                res.on('data', function (chunk) {
-                    console.log('BODY: ' + chunk);
-                });
-            });
-
-            request.on('error', function(e) {
-              console.log('problem with request: ' + e.message);
-            });
-
-            // write the request parameters
-            request.write(JSON.stringify(body));
-            request.end();
+    db.collection('clientcallbacklist').findOne({'clientID':body.clientID}, function(err, result){
+        if (err !=null){
+            databaseResultHandler(res,err,result);
+        }
+        if (result!=null){
+            if (type == 'geofence' && result.geofence.isActive){
+                geofenceCallback(req,result.geofence.host,result.geofence.path);
+            }
+            if (type == 'objectPath' && result.objectPath.isActive){
+                objectPathCallback(req,result.objectPath.host,result.objectPath.path);
+            }
         }
         else {
             console.log("Error with callback lookup:");
@@ -274,8 +485,52 @@ function makeCallback(req){
             console.log("Results: "+result);
         }
     });
+}
 
+// Handle the result of a database call/throw an error
+function databaseResultHandler(res,err,result){
+    //console.log("Error: "+JSON.stringify(err));
+    //console.log("Result: "+JSON.stringify(result));
+    res.send(
+        (err == null) ? { error:0, response:result } : { error:3, cause: err }
+    );
+}
 
+function callbackErrorHandler(err){
+    console.log('Error in callback: '+JSON.stringify(err));
+}
+
+// Send an unauthroized request error to the client
+function unauthorizedErrorHandler(res){
+    res.send({error:201, cause:"Unauthorized request"});
+}
+
+function sendRequest(host,path,body){
+    var options = {
+        host: host,
+        path: path,
+        method: "POST"
+    };
+
+    var request = http.request(options, function(res) {
+        //Do something with the response if necessary, for now just log it
+        console.log('STATUS: ' + res.statusCode);
+        console.log('HEADERS: ' + JSON.stringify(res.headers));
+        res.setEncoding('utf8');
+        res.on('data', function (chunk) {
+            console.log('BODY: ' + chunk);
+        });
+    });
+
+    request.on('error', function(e) {
+      console.log('problem with request: ' + e.message);
+    });
+
+    // write the request parameters
+    request.write(JSON.stringify(body));
+    console.log("Sending Request:");
+    console.log(request);
+    request.end();
 }
 
 module.exports = router;

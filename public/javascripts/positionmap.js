@@ -82,11 +82,11 @@ function objectPath(event) {
                 } 
 
                 //Iterate through responses, creating markers and polyline points
-                for (position in response){
-                    console.log(response[position]);
-                    var lat = response[position].location.coordinates[1];
-                    var lng = response[position].location.coordinates[0];
-                    var time = response[position].time;
+                for (position in response.response){
+                    console.log(response.response[position]);
+                    var lat = response.response[position].location.coordinates[1];
+                    var lng = response.response[position].location.coordinates[0];
+                    var time = response.response[position].time;
 
                     var timeString = (new Date(time*1000)).toLocaleString();
 
@@ -129,8 +129,8 @@ function objectPath(event) {
                 path.setMap(map);
 
                 //Set the bounds of the map view depending on whether we have a path or a single point
-                if (response.length>0){
-                    if (response.length>1){
+                if (response.response.length>0){
+                    if (response.response.length>1){
                         map.fitBounds(latLngBounds);
                     } else {
                         map.setCenter(myLatlng);

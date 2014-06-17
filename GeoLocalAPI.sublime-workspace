@@ -4,12 +4,48 @@
 		"selected_items":
 		[
 			[
-				"marker",
-				"markerArray"
+				"geo",
+				"geofenceCallback"
+			],
+			[
+				"ge",
+				"geofenceID"
+			],
+			[
+				"cl",
+				"clientID"
+			],
+			[
+				"la",
+				"latMin"
+			],
+			[
+				"lng",
+				"lngMin"
+			],
+			[
+				"lat",
+				"latMin"
+			],
+			[
+				"latM",
+				"latMin"
+			],
+			[
+				"res",
+				"results"
 			],
 			[
 				"data",
-				"dataString"
+				"databaseResultHandler"
+			],
+			[
+				"un",
+				"unauthorizedErrorHandler"
+			],
+			[
+				"marker",
+				"markerArray"
 			],
 			[
 				"conte",
@@ -95,7 +131,7 @@
 			"file": "app.js",
 			"settings":
 			{
-				"buffer_size": 1643,
+				"buffer_size": 1642,
 				"line_ending": "Unix"
 			}
 		},
@@ -103,7 +139,31 @@
 			"file": "routes/geo.js",
 			"settings":
 			{
-				"buffer_size": 8328,
+				"buffer_size": 17088,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "views/index.jade",
+			"settings":
+			{
+				"buffer_size": 5057,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "public/javascripts/global.js",
+			"settings":
+			{
+				"buffer_size": 14601,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "public/javascripts/positionmap.js",
+			"settings":
+			{
+				"buffer_size": 5173,
 				"line_ending": "Unix"
 			}
 		}
@@ -132,10 +192,10 @@
 	},
 	"file_history":
 	[
-		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/views/index.jade",
-		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/views/layout.jade",
 		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/views/positionmap.jade",
 		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/public/javascripts/positionmap.js",
+		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/views/index.jade",
+		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/views/layout.jade",
 		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/package.json",
 		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/public/javascripts/global.js",
 		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/public/stylesheets/style.css",
@@ -211,6 +271,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"deleteGeofenceResponse",
 			"console.log",
 			"SdFat",
 			"error",
@@ -258,15 +319,15 @@
 					"file": "app.js",
 					"settings":
 					{
-						"buffer_size": 1643,
+						"buffer_size": 1642,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								316,
-								312
+								1573,
+								1573
 							]
 						],
 						"settings":
@@ -286,15 +347,99 @@
 					"file": "routes/geo.js",
 					"settings":
 					{
-						"buffer_size": 8328,
+						"buffer_size": 17088,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								271,
-								271
+								16761,
+								16761
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 2191.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "views/index.jade",
+					"settings":
+					{
+						"buffer_size": 5057,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1273,
+								1421
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 452.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "public/javascripts/global.js",
+					"settings":
+					{
+						"buffer_size": 14601,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								13597,
+								13597
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 2547.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "public/javascripts/positionmap.js",
+					"settings":
+					{
+						"buffer_size": 5173,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4836,
+								4836
 							]
 						],
 						"settings":
