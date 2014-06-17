@@ -43,6 +43,9 @@ app.use('/', routes);
 app.use(function(req,res,next){
     if (req.path.indexOf('/geo')>-1){
         verifySignature(req,function(err,verify){
+            if (err!=null){
+                next(err);
+            }
             if (verify){
                 next();
             } else unauthorizedErrorHandler(res);
@@ -95,7 +98,7 @@ function verifySignature(req, callback){
     } else body = req.query;
     db.collection('clientidlist').findOne({'clientID':body.clientID}, function(err, result){
         if (err!=null){
-            databaseResultHandler(res,err,result);
+            callback(err,false);
         }
         if (result!=null){
             console.log("Server-side String:");
@@ -107,10 +110,10 @@ function verifySignature(req, callback){
             console.log(signature);
             console.log("Received Signature:");
             console.log(req.headers['x-signature']);
-            console.log("Received Time:");
-            console.log(parseFloat(req.headers['x-timestamp'])*1000);
             console.log("Current Server Time:");
             console.log((new Date).getTime());
+            console.log("Received Time:");
+            console.log(parseFloat(req.headers['x-timestamp'])*1000);
             console.log("Time Difference:");
             console.log((new Date).getTime() - parseFloat(req.headers['x-timestamp'])*1000);    
            //Check that the signature is correct and the request is less than 5 minutes old
