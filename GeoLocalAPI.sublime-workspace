@@ -4,12 +4,72 @@
 		"selected_items":
 		[
 			[
+				"ma",
+				"makeCallback"
+			],
+			[
+				"send",
+				"sendRequest"
+			],
+			[
+				"For",
+				"forEach"
+			],
+			[
 				"geo",
-				"geofenceCallback"
+				"geofences"
 			],
 			[
 				"ge",
-				"geofenceID"
+				"geofence"
+			],
+			[
+				"co",
+				"coordinate"
+			],
+			[
+				"coo",
+				"coordinates"
+			],
+			[
+				"lat",
+				"latLngArray"
+			],
+			[
+				"coor",
+				"coordinates"
+			],
+			[
+				"res",
+				"resultsGeofences"
+			],
+			[
+				"call",
+				"callbackErrorHandler"
+			],
+			[
+				"geof",
+				"geofence"
+			],
+			[
+				"index",
+				"indexOf"
+			],
+			[
+				"results",
+				"resultsGeofences"
+			],
+			[
+				"client",
+				"clientID"
+			],
+			[
+				"previous",
+				"previousGeofences"
+			],
+			[
+				"cli",
+				"clientID"
 			],
 			[
 				"cl",
@@ -24,16 +84,8 @@
 				"lngMin"
 			],
 			[
-				"lat",
-				"latMin"
-			],
-			[
 				"latM",
 				"latMin"
-			],
-			[
-				"res",
-				"results"
 			],
 			[
 				"data",
@@ -131,7 +183,7 @@
 			"file": "app.js",
 			"settings":
 			{
-				"buffer_size": 1642,
+				"buffer_size": 4002,
 				"line_ending": "Unix"
 			}
 		},
@@ -139,15 +191,7 @@
 			"file": "routes/geo.js",
 			"settings":
 			{
-				"buffer_size": 17088,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "views/index.jade",
-			"settings":
-			{
-				"buffer_size": 5057,
+				"buffer_size": 16693,
 				"line_ending": "Unix"
 			}
 		},
@@ -163,7 +207,15 @@
 			"file": "public/javascripts/positionmap.js",
 			"settings":
 			{
-				"buffer_size": 5173,
+				"buffer_size": 8605,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "views/positionmap.jade",
+			"settings":
+			{
+				"buffer_size": 1967,
 				"line_ending": "Unix"
 			}
 		}
@@ -192,11 +244,11 @@
 	},
 	"file_history":
 	[
+		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/views/index.jade",
+		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/package.json",
 		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/views/positionmap.jade",
 		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/public/javascripts/positionmap.js",
-		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/views/index.jade",
 		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/views/layout.jade",
-		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/package.json",
 		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/public/javascripts/global.js",
 		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/public/stylesheets/style.css",
 		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/routes/index.js",
@@ -319,15 +371,15 @@
 					"file": "app.js",
 					"settings":
 					{
-						"buffer_size": 1642,
+						"buffer_size": 4002,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1573,
-								1573
+								1084,
+								1084
 							]
 						],
 						"settings":
@@ -337,7 +389,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 458.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -347,15 +399,15 @@
 					"file": "routes/geo.js",
 					"settings":
 					{
-						"buffer_size": 17088,
+						"buffer_size": 16693,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								16761,
-								16761
+								14196,
+								14196
 							]
 						],
 						"settings":
@@ -365,41 +417,13 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 2191.0,
+						"translation.y": 418.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 2,
-					"file": "views/index.jade",
-					"settings":
-					{
-						"buffer_size": 5057,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1273,
-								1421
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Text/Plain text.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 452.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 3,
 					"file": "public/javascripts/global.js",
 					"settings":
 					{
@@ -410,8 +434,8 @@
 						"selection":
 						[
 							[
-								13597,
-								13597
+								13099,
+								11691
 							]
 						],
 						"settings":
@@ -421,30 +445,58 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 2547.0,
+						"translation.y": 1005.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
-					"buffer": 4,
+					"buffer": 3,
 					"file": "public/javascripts/positionmap.js",
 					"settings":
 					{
-						"buffer_size": 5173,
+						"buffer_size": 8605,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								4836,
-								4836
+								7956,
+								7956
 							]
 						],
 						"settings":
 						{
 							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 3121.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "views/positionmap.jade",
+					"settings":
+					{
+						"buffer_size": 1967,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								526,
+								526
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage",
 							"tab_size": 4,
 							"translate_tabs_to_spaces": true
 						},
