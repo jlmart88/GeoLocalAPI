@@ -1,14 +1,10 @@
 doctype html
+
 html
     head
+        title= title
+        link(rel='stylesheet', href='/stylesheets/positionmap.css')
         meta(name='viewport', content='initial-scale=1.0, user-scalable=no')
-        style(type='text/css').
-            html { height: 100% }
-            body { height: 100%; margin: 0; padding: 0 }
-            #map-canvas { height: 80%; width: 80%; float:right }
-            #objectPath { float:center; height:auto; width:100%; max-width:100%; padding:1px} 
-            #listGeofences { height:auto; width:100%; max-width:100%; padding:1px}
-            #queryDiv {float:left; height:100%; width:19%; max-width:19%; display:inline-block; padding:1px} 
         
         script(src='http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js')
         script(src='http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/sha1.js')
@@ -28,16 +24,18 @@ html
                     input#inputStart(type='text', placeholder='start')
                     input#inputEnd(type='text', placeholder='end')
                     br
-                    button#btnObjectPath Plot Object Path
+                    button#btnObjectPath(class='submitButton') Plot Object Path
+                    ul#objectList(class='drawingList')
 
             // /OBJECT PATH
             // LIST GEOFENCES
-            h3(align='center') Geofence
+            h3(align='center') Geofences
             #listGeofences
                 fieldset
                     input#inputClientID(type='text', placeholder='clientID')
                     br
-                    button#btnListGeofences Plot Geofences
+                    button#btnListGeofences(class='submitButton') Plot Geofences
+                    ul#geofenceList(class='drawingList')
 
         // /LIST GEOFENCES
         #map-canvas
