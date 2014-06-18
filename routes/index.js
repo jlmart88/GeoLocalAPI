@@ -7,7 +7,7 @@ router.get('/', function(req, res) {
 });
 
 router.get('/positionmap', function(req,res) {
-    res.render('positionmap', { title: 'Position Map'});
+    res.render('positionmap', { title: 'Object Path and Geofence Mapper'});
 });
 
 module.exports = router;

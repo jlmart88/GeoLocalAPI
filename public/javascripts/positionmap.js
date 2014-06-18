@@ -1,4 +1,3 @@
-var clientSecret = "nomelase";
 window.drawingList = {};
 
 // DOM Ready =============================================================
@@ -50,6 +49,12 @@ $(document).ready(function() {
         toggleVisibility($this);
     });
 
+    $drawingLists.delegate('li', 'click', function(e){
+        var $this = $(this);
+     
+        focusObjectBounds($this);
+    });
+
     // Functions =============================================================
 
     function objectPath(event) {
@@ -76,7 +81,7 @@ $(document).ready(function() {
                 'start': $('#objectPath fieldset input#inputStart').val(),
                 'end': $('#objectPath fieldset input#inputEnd').val()
             };
-
+            var clientSecret = $('#clientSecret fieldset input#inputClientSecret').val();
             var dataString = JSON.stringify(newObject);
             var timeString = (new Date).getTime()/1000;
             var signature = CryptoJS.SHA1(dataString+timeString+clientSecret);
@@ -96,71 +101,75 @@ $(document).ready(function() {
             }).done(function( response ) {
 
                     //Draw the path on the map as Markers and a Polyline
+                    if (response.error == 0){
+                        //Create a bounds to set our map view to after we are finished
+                        var latLngBounds = window.map.getBounds();
+                        var extended = false;
+                        var polylineArray = [];
+                        var markerArray = [];
 
-                    //Create a bounds to set our map view to after we are finished
-                    var latLngBounds = window.map.getBounds();
-                    var extended = false;
-                    var polylineArray = [];
-                    var markerArray = [];
+                        //Iterate through responses, creating markers and polyline points
+                        for (position in response.response){
+                            var lat = response.response[position].location.coordinates[1];
+                            var lng = response.response[position].location.coordinates[0];
+                            var time = response.response[position].time;
 
-                    //Iterate through responses, creating markers and polyline points
-                    for (position in response.response){
-                        var lat = response.response[position].location.coordinates[1];
-                        var lng = response.response[position].location.coordinates[0];
-                        var time = response.response[position].time;
+                            var timeString = (new Date(time*1000)).toLocaleString();
 
-                        var timeString = (new Date(time*1000)).toLocaleString();
+                            var myLatlng = new google.maps.LatLng(lat,lng);
+                            //Extend our map view to include this new location
+                            if (!(latLngBounds.contains(myLatlng))){
+                                latLngBounds.extend(myLatlng);
+                                extended = true;
+                            }
 
-                        var myLatlng = new google.maps.LatLng(lat,lng);
-                        //Extend our map view to include this new location
-                        if (!(latLngBounds.contains(myLatlng))){
-                            latLngBounds.extend(myLatlng);
-                            extended = true;
+                            var marker = new google.maps.Marker({
+                                animation: google.maps.Animation.DROP,
+                                position: myLatlng,
+                                title: timeString
+                            });
+
+                            // To add the marker to the map, call setMap();
+                            marker.setMap(window.map);
+
+                            markerArray.push(marker);
+                            polylineArray.push(myLatlng);
                         }
+                        //Create the polyline from the list of collected points
 
-                        var marker = new google.maps.Marker({
-                            animation: google.maps.Animation.DROP,
-                            position: myLatlng,
-                            title: timeString
+                         var lineSymbol = {
+                            path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW
+                          };
+
+                        var path = new google.maps.Polyline({
+                            path: polylineArray,
+                            icons: [{
+                                icon: lineSymbol,
+                                offset: '100%',
+                                repeat: '50%'
+                            }],
+                            geodesic: true,
+                            strokeColor: '#FF0000',
+                            strokeOpacity: 1.0,
+                            strokeWeight: 2
                         });
 
-                        // To add the marker to the map, call setMap();
-                        marker.setMap(window.map);
+                        //To add the polyline to the map, call setMap();
+                        path.setMap(window.map);
 
-                        markerArray.push(marker);
-                        polylineArray.push(myLatlng);
-                    }
-                    //Create the polyline from the list of collected points
+                        addDrawingItem($objectList,$('#objectPath fieldset input#inputCustomID').val(),markerArray.concat(path));
 
-                     var lineSymbol = {
-                        path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW
-                      };
-
-                    var path = new google.maps.Polyline({
-                        path: polylineArray,
-                        icons: [{
-                            icon: lineSymbol,
-                            offset: '100%',
-                            repeat: '50%'
-                        }],
-                        geodesic: true,
-                        strokeColor: '#FF0000',
-                        strokeOpacity: 1.0,
-                        strokeWeight: 2
-                    });
-
-                    //To add the polyline to the map, call setMap();
-                    path.setMap(window.map);
-
-                    addDrawingItem($objectList,$('#objectPath fieldset input#inputCustomID').val(),markerArray.concat(path));
-
-                    //Set the bounds of the map view depending on whether we have a path or a single point
-                    if (response.response.length>0){
-                        if ((response.response.length>1 && extended) || extended){
-                            window.map.fitBounds(latLngBounds);
-                        } else if (response.response.length==1){
-                            window.map.setCenter(myLatlng);
+                        //Set the bounds of the map view depending on whether we have a path or a single point
+                        if (response.response.length>0){
+                            if ((response.response.length>1 && extended) || extended){
+                                window.map.fitBounds(latLngBounds);
+                            } else if (response.response.length==1){
+                                window.map.setCenter(myLatlng);
+                            }
                         }
+                    }
+                    else {
+                        alert(JSON.stringify(response));
                     }
             });
         }
@@ -187,6 +196,7 @@ $(document).ready(function() {
                 'clientID': $('#listGeofences fieldset input#inputClientID').val()
             };
 
+            var clientSecret = $('#clientSecret fieldset input#inputClientSecret').val();
             var dataString = JSON.stringify(newObject);
             var timeString = (new Date).getTime()/1000;
             var signature = CryptoJS.SHA1(dataString+timeString+clientSecret);
@@ -206,47 +216,51 @@ $(document).ready(function() {
 
                 //Draw the geofences on the map as Polygons
 
+                if (response.error==0){
+                    //Create a bounds to set our map view to after we are finished
+                    var latLngBounds = window.map.getBounds();
+                    var extended = false;
 
-                //Create a bounds to set our map view to after we are finished
-                var latLngBounds = window.map.getBounds();
-                var extended = false;
-
-                //Iterate through responses, creating markers and polyline points
-                for (geofence in response.response){
-                    var latLngArray = [];
-                    var coordinates = response.response[geofence].location.coordinates[0];
-                    for (coordinate in coordinates){
-                        var myLatlng = new google.maps.LatLng(coordinates[coordinate][1],coordinates[coordinate][0]);
-                        //Extend our map view to include this new location
-                        if (!(latLngBounds.contains(myLatlng))){
-                            latLngBounds.extend(myLatlng);
-                            extended = true;
+                    //Iterate through responses, creating markers and polyline points
+                    for (geofence in response.response){
+                        var latLngArray = [];
+                        var coordinates = response.response[geofence].location.coordinates[0];
+                        for (coordinate in coordinates){
+                            var myLatlng = new google.maps.LatLng(coordinates[coordinate][1],coordinates[coordinate][0]);
+                            //Extend our map view to include this new location
+                            if (!(latLngBounds.contains(myLatlng))){
+                                latLngBounds.extend(myLatlng);
+                                extended = true;
+                            }
+                            
+                            latLngArray.push(myLatlng);
                         }
-                        
-                        latLngArray.push(myLatlng);
+
+                        var polygon = new google.maps.Polygon({
+                            paths: latLngArray,
+                            strokeColor: '#FF9933',
+                            strokeOpacity: 0.8,
+                            strokeWeight: 2,
+                            fillColor: '#FF9933',
+                            fillOpacity: 0.25
+                        });
+
+
+                        // To add the marker to the map, call setMap();
+                        polygon.setMap(window.map);
+
+                        addDrawingItem($geofenceList,response.response[geofence].geofenceID,[polygon]);
                     }
 
-                    var polygon = new google.maps.Polygon({
-                        paths: latLngArray,
-                        strokeColor: '#FF9933',
-                        strokeOpacity: 0.8,
-                        strokeWeight: 2,
-                        fillColor: '#FF9933',
-                        fillOpacity: 0.25
-                    });
-
-
-                    // To add the marker to the map, call setMap();
-                    polygon.setMap(window.map);
-
-                    addDrawingItem($geofenceList,response.response[geofence].geofenceID,[polygon]);
+                    //Set the bounds of the map view
+                    if (extended){
+                        window.map.fitBounds(latLngBounds);
+                    }
                 }
-
-                //Set the bounds of the map view
-                if (extended){
-                    window.map.fitBounds(latLngBounds);
+                else {
+                    alert(JSON.stringify(response));
                 }
-                
+                    
 
             });
         }
@@ -265,6 +279,10 @@ $(document).ready(function() {
             + name
             + " </span><a href='#'>x</a></li>"
         );
+        $("#drawing-" + drawingCounter).hide(0,function(){
+            $("#drawing-" + drawingCounter).fadeIn();
+        })
+        
 
         window.drawingList['drawing-'+drawingCounter]=mapContents;
 
@@ -279,11 +297,9 @@ $(document).ready(function() {
         }
         delete window.drawingList[parentID];
         // Fade out the list item then remove from DOM
-        $this.parent().fadeOut(function() {
-            $this.parent().remove();
-        });
+        $this.parent().remove();
 
-        recomputeBounds();   
+        recomputeAllBounds();   
     };
 
     function toggleVisibility($this){
@@ -294,10 +310,10 @@ $(document).ready(function() {
             window.drawingList[parentID][content].setVisible(visible);
         }
 
-        recomputeBounds();
+        recomputeAllBounds();
     };
 
-    function recomputeBounds(){
+    function recomputeAllBounds(){
         var latLngBounds = new google.maps.LatLngBounds();
         for (drawing in window.drawingList){
             for (content in window.drawingList[drawing]){
@@ -320,6 +336,29 @@ $(document).ready(function() {
             window.map.setOptions(defaultMapOptions);
         }
     };
-});
+
+    function focusObjectBounds($this){
+        var id = $this.attr('id');
+
+        var latLngBounds = new google.maps.LatLngBounds();
+        for (content in window.drawingList[id]){
+            var object = window.drawingList[id][content];
+                if (object.getVisible()){
+                    if (object instanceof google.maps.Marker){
+                        latLngBounds.extend(object.getPosition());
+                    }
+                    else if (object instanceof google.maps.Polyline || object instanceof google.maps.Polygon){
+                        object.getPath().forEach(function(point){
+                            latLngBounds.extend(point);
+                        })
+                    }
+                }
+        }
+        if (!latLngBounds.isEmpty()){
+            window.map.fitBounds(latLngBounds);
+        } 
+    };
+
+})
 
 
