@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var async = require('async');
 var http = require('http');
+var querystring = require('../node_modules/querystring/querystring');
 
 /*
  * POST to addobject.
@@ -28,7 +29,8 @@ router.post('/addobject', function(req, res) {
  */
 router.post('/saveposition', function(req, res) {
     var db = req.db;
-    //Insert the location into the position list first
+    //sendRequest('dev.techideas.net','/m/bcncityapp/005/geofence/callback',{'customID':'989', 'entered':['Basilica de la Sagrada Familia']});
+     //Insert the location into the position list first
     db.collection('positionlist').insert(req.body, function(err, result){
         if (err!=null){
             databaseResultHandler(res,err,object);
@@ -76,6 +78,7 @@ router.post('/saveposition', function(req, res) {
  */
 router.get('/lastposition', function(req, res) {
     var db = req.db;
+    sendRequest()
     //First query the object collection
     db.collection('objectlist').findOne(req.query, function (err, object) {
         if (err!=null){
@@ -161,7 +164,6 @@ router.get('/nearbyobjects', function(req, res) {
 
                 }, function(err){
                     //Check for a callback associated with this clientID/request
-                    makeCallback(req);
                     console.log(results);
                     databaseResultHandler(res,err,results);
                 });
@@ -320,6 +322,7 @@ router.delete('/geofence', function(req, res) {
 //This keeps track of what objects are in what geofences by modifying the "geofence" parameter
 //  of the object in the object list
 function geofenceCallback(req,host,path){
+
     var db = req.db;
     var body;
     if (req.method == 'POST' || req.method == 'DELETE'){
@@ -391,7 +394,9 @@ function geofenceCallback(req,host,path){
                                     if (entered.length + exited.length > 0){
                                         console.log("Sending geofence callback");
                                         //Send the geofence callback request with the entered and exited geofence information
-                                        sendRequest(host,path,{'customID':body.customID,'entered':entered,'exited':exited});
+                                        var reqBody = {'customID':body.customID,'entered':entered,'exited':exited};
+         
+                                        sendRequest(host,path,reqBody);
                                     }
                                     else {
                                         console.log("Not sending geofence callback; no meaningful data to send");
@@ -468,12 +473,12 @@ function callbackErrorHandler(err){
 function sendRequest(host,path,body){
     var options = {
         host: host,
-        path: path,
-        method: "POST"
+        path: path+'?'+querystring.stringify(body),
+        method: "GET"
     };
-
     var request = http.request(options, function(res) {
         //Do something with the response if necessary, for now just log it
+        //console.log(res);
         console.log('STATUS: ' + res.statusCode);
         console.log('HEADERS: ' + JSON.stringify(res.headers));
         res.setEncoding('utf8');
@@ -489,7 +494,7 @@ function sendRequest(host,path,body){
     // write the request parameters
     request.write(JSON.stringify(body));
     console.log("Sending Request:");
-    console.log(request.output);
+    //console.log(request);
     request.end();
 }
 

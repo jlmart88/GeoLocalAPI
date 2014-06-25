@@ -4,6 +4,90 @@
 		"selected_items":
 		[
 			[
+				"query",
+				"querystring"
+			],
+			[
+				"cl",
+				"clientSecret"
+			],
+			[
+				"client",
+				"clientSecret"
+			],
+			[
+				"draw",
+				"drawingLists"
+			],
+			[
+				"fa",
+				"fadeIn"
+			],
+			[
+				"check",
+				"checkLatLngBounds"
+			],
+			[
+				"Lat",
+				"LatLngBounds"
+			],
+			[
+				"get",
+				"getBounds"
+			],
+			[
+				"obj",
+				"object"
+			],
+			[
+				"Pol",
+				"Polyline"
+			],
+			[
+				"lat",
+				"latLngBounds"
+			],
+			[
+				"path",
+				"pathArray"
+			],
+			[
+				"add",
+				"addDrawingItem"
+			],
+			[
+				"dra",
+				"drawingCounter"
+			],
+			[
+				"par",
+				"parent"
+			],
+			[
+				"dr",
+				"drawingCounter"
+			],
+			[
+				"drawing",
+				"drawingCounter"
+			],
+			[
+				"parent",
+				"parentID"
+			],
+			[
+				"padd",
+				"padding"
+			],
+			[
+				"font",
+				"font-weight"
+			],
+			[
+				"object",
+				"objectList"
+			],
+			[
 				"ma",
 				"makeCallback"
 			],
@@ -32,10 +116,6 @@
 				"coordinates"
 			],
 			[
-				"lat",
-				"latLngArray"
-			],
-			[
 				"coor",
 				"coordinates"
 			],
@@ -60,19 +140,11 @@
 				"resultsGeofences"
 			],
 			[
-				"client",
-				"clientID"
-			],
-			[
 				"previous",
 				"previousGeofences"
 			],
 			[
 				"cli",
-				"clientID"
-			],
-			[
-				"cl",
 				"clientID"
 			],
 			[
@@ -118,10 +190,6 @@
 			[
 				"con",
 				"contentType"
-			],
-			[
-				"object",
-				"objectDetails"
 			],
 			[
 				"pr",
@@ -183,7 +251,7 @@
 			"file": "app.js",
 			"settings":
 			{
-				"buffer_size": 4002,
+				"buffer_size": 4003,
 				"line_ending": "Unix"
 			}
 		},
@@ -191,31 +259,15 @@
 			"file": "routes/geo.js",
 			"settings":
 			{
-				"buffer_size": 16693,
+				"buffer_size": 17800,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "public/javascripts/global.js",
+			"file": "package.json",
 			"settings":
 			{
-				"buffer_size": 14601,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "public/javascripts/positionmap.js",
-			"settings":
-			{
-				"buffer_size": 8605,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "views/positionmap.jade",
-			"settings":
-			{
-				"buffer_size": 1967,
+				"buffer_size": 404,
 				"line_ending": "Unix"
 			}
 		}
@@ -244,15 +296,16 @@
 	},
 	"file_history":
 	[
-		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/views/index.jade",
-		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/package.json",
+		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/public/javascripts/global.js",
 		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/views/positionmap.jade",
 		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/public/javascripts/positionmap.js",
-		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/views/layout.jade",
-		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/public/javascripts/global.js",
-		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/public/stylesheets/style.css",
+		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/public/stylesheets/positionmap.css",
 		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/routes/index.js",
 		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/routes/geo.js",
+		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/views/index.jade",
+		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/package.json",
+		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/views/layout.jade",
+		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/public/stylesheets/style.css",
 		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/views/userlist.jade",
 		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/views/newuser.jade",
 		"/Users/jlmart88/Documents/Arduino/libraries/RRDSD/RRDSD.cpp",
@@ -323,6 +376,7 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"console",
 			"deleteGeofenceResponse",
 			"console.log",
 			"SdFat",
@@ -371,15 +425,15 @@
 					"file": "app.js",
 					"settings":
 					{
-						"buffer_size": 4002,
+						"buffer_size": 4003,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1084,
-								1084
+								22,
+								22
 							]
 						],
 						"settings":
@@ -389,7 +443,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 458.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
@@ -399,15 +453,15 @@
 					"file": "routes/geo.js",
 					"settings":
 					{
-						"buffer_size": 16693,
+						"buffer_size": 17800,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								14196,
-								14196
+								848,
+								848
 							]
 						],
 						"settings":
@@ -416,88 +470,32 @@
 							"tab_size": 4,
 							"translate_tabs_to_spaces": true
 						},
-						"translation.x": 0.0,
-						"translation.y": 418.0,
+						"translation.x": 72.0,
+						"translation.y": 188.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 2,
-					"file": "public/javascripts/global.js",
+					"file": "package.json",
 					"settings":
 					{
-						"buffer_size": 14601,
+						"buffer_size": 404,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								13099,
-								11691
+								397,
+								397
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 1005.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 3,
-					"file": "public/javascripts/positionmap.js",
-					"settings":
-					{
-						"buffer_size": 8605,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								7956,
-								7956
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 3121.0,
-						"zoom_level": 1.0
-					},
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"file": "views/positionmap.jade",
-					"settings":
-					{
-						"buffer_size": 1967,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								526,
-								526
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Text/Plain text.tmLanguage",
-							"tab_size": 4,
+							"syntax": "Packages/JavaScript/JSON.tmLanguage",
+							"tab_size": 2,
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
