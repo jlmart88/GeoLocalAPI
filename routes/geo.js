@@ -78,7 +78,6 @@ router.post('/saveposition', function(req, res) {
  */
 router.get('/lastposition', function(req, res) {
     var db = req.db;
-    sendRequest()
     //First query the object collection
     db.collection('objectlist').findOne(req.query, function (err, object) {
         if (err!=null){
@@ -347,6 +346,7 @@ function geofenceCallback(req,host,path){
                 previousGeofences = result.geofences;
             }
             // Then, find what geofences it is currently in
+            
             db.collection('geofencelist').find({
                 'location':{
                     '$geoIntersects': {
@@ -467,7 +467,8 @@ function databaseResultHandler(res,err,result){
 }
 
 function callbackErrorHandler(err){
-    console.log('Error in callback: '+JSON.stringify(err));
+    console.log('Error in callback: ');
+    console.log(err);
 }
 
 function sendRequest(host,path,body){
