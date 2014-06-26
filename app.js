@@ -43,12 +43,9 @@ app.use('/', routes);
 app.use(function(req,res,next){
     if (req.path.lastIndexOf('/geo/') == 0){
         verifySignature(req,function(err,verify){
-            if (err!=null){
-                next(err);
-            }
             if (verify){
                 next();
-            } else unauthorizedErrorHandler(res);
+            } else unauthorizedErrorHandler(res,err);
         });
     } else next();
 });
@@ -100,7 +97,7 @@ function verifySignature(req, callback){
         if (err!=null){
             callback(err,false);
         }
-        if (result!=null){
+        else if (result!=null){
             console.log("Server-side String:");
             console.log(JSON.stringify(body)+req.headers['x-timestamp']+result.clientSecret);
             
@@ -118,18 +115,23 @@ function verifySignature(req, callback){
             console.log((new Date).getTime() - parseFloat(req.headers['x-timestamp'])*1000);    
            //Check that the signature is correct and the request is less than 5 minutes old
             var expireTime = 1000*60*5;
-            callback(null,(signature == req.headers['x-signature'] && 
-                (new Date).getTime() - parseFloat(req.headers['x-timestamp'])*1000 < expireTime));
+            if (signature != req.headers['x-signature']){
+                callback("Signature did not match", false);
+            }
+            else if (!((new Date).getTime() - parseFloat(req.headers['x-timestamp'])*1000 < expireTime)){
+                callback("Request expired", false);
+            }
+            callback(null,true);
         }
         else {
-            callback(null,false);
+            callback("ClientID lookup error",false);
         }
     });
 }
 
 // Send an unauthroized request error to the client
-function unauthorizedErrorHandler(res){
-    res.send({error:201, cause:"Unauthorized request caught in app.js"});
+function unauthorizedErrorHandler(res,err){
+    res.send({error:201, cause:"Unauthorized request: "+err});
 }
 
 module.exports = app;

@@ -9,6 +9,10 @@ var querystring = require('../node_modules/querystring/querystring');
  */
 router.post('/addobject', function(req, res) {
     var db = req.db;
+
+    var params = ['clientID','customID'];
+    if (!checkParameters(req.body, res, params)) return;
+
     db.collection('objectlist').ensureIndex(
         {'clientID':1, 'customID':1}, 
         {unique:true}, 
@@ -29,48 +33,62 @@ router.post('/addobject', function(req, res) {
  */
 router.post('/saveposition', function(req, res) {
     var db = req.db;
-    //sendRequest('dev.techideas.net','/m/bcncityapp/005/geofence/callback',{'customID':'989', 'entered':['Basilica de la Sagrada Familia']});
-     //Insert the location into the position list first
-    db.collection('positionlist').insert(req.body, function(err, result){
-        if (err!=null){
-            databaseResultHandler(res,err,object);
+
+    var params = ['clientID','customID', 
+        ['position','location','type'], ['position','location','coordinates'], ['position','time']];
+    if (!checkParameters(req.body, res, params)) return;
+
+    //Insert the location into the last position list first
+    db.collection('lastpositionlist').ensureIndex(
+        {'clientID':1, 'customID':1}, 
+        {unique:true}, 
+        function(err,result){
+            if (err != null) {
+                callbackErrorHandler(err);
+            }
         }
-        if (result != null){
-            var clientID = result[0].clientID;
-            var customID = result[0].customID;
+    );
 
-            var time = result[0].position.time;
-            delete result[0]._id;
+    //Create a 2dsphere index in the last position list to allow for geoNear query
+    db.collection('lastpositionlist').ensureIndex({'position.location':'2dsphere'}, function(err,result){
+        if (err!=null){
+            callbackErrorHandler(err);
+        }
+    });
 
-            //Attempt the save position callback after the position was saved succesfully
-            makeCallback(req,'savePosition');
-
-            //Then insert the location into the last position list
-            db.collection('lastpositionlist').ensureIndex(
-                {'clientID':1, 'customID':1}, 
-                {unique:true}, 
-                function(err,result){
-                    if (err != null) {
-                        callbackErrorHandler(err);
-                    }
-                }
-            );
-            db.collection('lastpositionlist').update(
-                {'clientID':clientID, 'customID':customID, 'position.time': {$lt:time}},
-                {'$set':result[0]},
+    db.collection('lastpositionlist').update(
+                {'clientID':req.body.clientID, 'customID':req.body.customID, 'position.time': {$lt:req.body.position.time}},
+                {'$set':req.body},
                 {upsert:true},
                 function(err,result){
+            if (err!=null){
+                databaseResultHandler(res,err,result);
+            }
+            else if (result != null){
+                // var clientID = result[0].clientID;
+                // var customID = result[0].customID;
+
+                // var time = result[0].position.time;
+                // delete result[0]._id;
+
+                //Attempt the save position callback after the position was saved succesfully
+                makeCallback(req,'savePosition');
+
+                
+                //Insert the location into the position list last
+                db.collection('positionlist').insert(req.body, function(err, result){
                     if (err != null) {
-                        callbackErrorHandler(err);
-                    }else {
+                        databaseResultHandler(res,err,result);
+                    } else {
+                        databaseResultHandler(res,err,result);
                         //Attempt the geofence callback after we know the last position update was successful
                         makeCallback(req,'geofence');
                     }
-                }
-            );
+                });
+            }
+            else databaseResultHandler(res,"Unknown error while saving position",result);
         }
-        databaseResultHandler(res,err,result);
-    });
+    );
 });
 
 /*
@@ -78,19 +96,23 @@ router.post('/saveposition', function(req, res) {
  */
 router.get('/lastposition', function(req, res) {
     var db = req.db;
+
+    var params = ['clientID','customID'];
+    if (!checkParameters(req.query, res, params)) return;
+
     //First query the object collection
     db.collection('objectlist').findOne(req.query, function (err, object) {
         if (err!=null){
             databaseResultHandler(res,err,object);
         }
-        if (object != null){
+        else if (object != null){
             //Then query the position collection, sorting by the timestamp
             db.collection('lastpositionlist').findOne(req.query, function(err, position){
                 if (err!=null){
                     databaseResultHandler(res,err,position);
                 }
                 //Add the position data to our object and return it
-                if (position!=null){
+                else if (position!=null){
                     delete position.clientID;
                     delete position.customID;
                     object.position = position.position;
@@ -108,19 +130,24 @@ router.get('/lastposition', function(req, res) {
  */
 router.get('/nearbyobjects', function(req, res) {
     var db = req.db;
+    //console.log(req);
+
+    var params = ['clientID','customID',['location','coordinates'],['location','type'],'distance'];
+    if (!checkParameters(req.query, res, params)) return;
+
     var clientID = req.query.clientID;
     var customID = req.query.customID;
     var offset;
     var epoch = (new Date).getTime() / 1000;
 
-    if (req.query.offset == ''){
-        offset = 24*60*60; //set default offset to 24 hours
+    if (req.query.offset == '' || req.query.offset == null){
+        offset = 24*60*60; //set default offset to 24 hours if not given
     } else offset = parseFloat(req.query.offset);
 
     //Create a 2dsphere index in the last position list to allow for geoNear query
     db.collection('lastpositionlist').ensureIndex({'position.location':'2dsphere'}, function(err,result){
         if (err!=null){
-            databaseResultHandler(res,err,result);
+            callbackErrorHandler(err);
         }
     });
  
@@ -132,37 +159,39 @@ router.get('/nearbyobjects', function(req, res) {
         spherical:'true',
         query: {'position.time': {$gte:epoch-offset}},
         maxDistance:parseFloat(req.query.distance)}, function (err, positions) {
-            if (err!=null){
-            databaseResultHandler(res,err,positions);
-            }
-            
-            // larger scope array to hold the augmented data we will create
-            var results = [];
 
-            if (positions != null){
+            if (err!=null){
+                databaseResultHandler(res,err,positions);
+            }
+
+            else if (positions != null){
+
+                // larger scope array to hold the augmented data we will create
+                var results = [];
                 //Augment all of the results with information about the objects from the object database
                 async.each(positions.results, function(position, callback){
                     if (!(position.obj.clientID == clientID && position.obj.customID == customID)){
 
                         db.collection('objectlist').findOne({'clientID':position.obj.clientID, 'customID':position.obj.customID}, function (err, object) {
                             if (err!=null){
-                                databaseResultHandler(res,err,object);
+                                //databaseResultHandler(res,err,object);
+                                callbackErrorHandler(err);
                             }
                             if (object!=null){
                                 position.obj.categories = object.categories;
                                 position.obj.tags = object.tags;
                                 position.obj.related = object.related;
                                 delete position.obj._id;
+                                results.push(position);
+                                callback();
                             } else callback("No object data for object with customID "+customID,"");
-                            results.push(position);
-                            callback();
+                            
                         });
                     
                     } else callback();
 
 
                 }, function(err){
-                    //Check for a callback associated with this clientID/request
                     console.log(results);
                     databaseResultHandler(res,err,results);
                 });
@@ -178,6 +207,10 @@ router.get('/nearbyobjects', function(req, res) {
  */
 router.get('/objectpath', function(req, res) {
     var db = req.db;
+
+    var params = ['clientID','customID'];
+    if (!checkParameters(req.query, res, params)) return;
+
     var start;
     var end;
     var epoch = (new Date).getTime() / 1000;
@@ -201,7 +234,7 @@ router.get('/objectpath', function(req, res) {
         if (err != null){
             databaseResultHandler(res,err,items);
         }
-        if (items != null){
+        else if (items != null){
             var results = [];
             items.forEach(function(item) {
                 results.push(item.position);
@@ -216,6 +249,11 @@ router.get('/objectpath', function(req, res) {
  */
 router.post('/geofence', function(req, res) {
     var db = req.db;
+
+    var params = ['clientID','geofenceID','lng','lat','distance'];
+    if (!checkParameters(req.body, res, params)) return;
+
+
     var dist = parseFloat(req.body.distance);
     var lngDeg = parseFloat(req.body.lng);
     var latDeg = parseFloat(req.body.lat);
@@ -274,6 +312,13 @@ router.post('/geofence', function(req, res) {
         }
     );
 
+    //Ensure there is a 2dsphere index in the geofence list to allow for geoIntersects query
+    db.collection('geofencelist').ensureIndex({'location':'2dsphere'}, function(err,result){
+        if (err!=null){
+            callbackErrorHandler(err);
+        }
+    });
+
     //Insert the object into the object list
     db.collection('geofencelist').insert(object, function(err, result){
         databaseResultHandler(res,err,result);
@@ -286,12 +331,16 @@ router.post('/geofence', function(req, res) {
 router.get('/geofence', function(req, res) {
     var db = req.db;
 
+    var params = ['clientID'];
+    if (!checkParameters(req.query, res, params)) return;
+
+
     //First query the geofence collection
     db.collection('geofencelist').find(req.query).toArray(function (err, geofences) {
         if (err!=null){
             databaseResultHandler(res,err,geofences);
         }
-        if (geofences!=null){
+        else if (geofences!=null){
             geofences.forEach(function(geofence){
                 delete geofence._id;
             });
@@ -306,7 +355,11 @@ router.get('/geofence', function(req, res) {
  */
 router.delete('/geofence', function(req, res) {
     var db = req.db;
-    console.log(req.body);
+    //console.log(req.body);
+
+    var params = ['clientID','geofenceID'];
+    if (!checkParameters(req.body, res, params)) return;
+
 
     //First query the object collection
     db.collection('geofencelist').remove(req.body, function (err, geofences) {
@@ -497,6 +550,31 @@ function sendRequest(host,path,body){
     console.log("Sending Request:");
     //console.log(request);
     request.end();
+}
+
+function checkParameters(body,res,params){
+    // validate that the given parameters exist
+    var missing = [];
+    for (param in params){
+        if (Array.isArray(params[param])){
+            data = body[params[param][0]];
+            for (var i=1; i<params[param].length; i++){
+                if (data != '' && data != null){
+                    data = data[params[param][i]];
+                }
+            }
+        } else data = body[params[param]];
+        if (data == '' || data == null){
+            missing.push(("'"+params[param].toString()+"'").replace(/,/g,":"));
+        }
+    }
+    var err;
+    if (missing.length > 0){
+        err = "Incorrect Parameters, missing: "+missing;
+        res.send({error:2,cause:err});
+        return false;
+    }
+    return true;
 }
 
 module.exports = router;
