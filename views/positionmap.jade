@@ -14,10 +14,11 @@ html
     body
         h2(align='center') Object Path and Geofence Mapper
         #queryDiv
-            // OBJECT PATH
+            
             #clientSecret
                 fieldset
                     input#inputClientSecret(type='text', placeholder='clientSecret')
+            // OBJECT PATH
             h3(align='center') Object Path
             #objectPath
                 fieldset
@@ -31,6 +32,24 @@ html
                     ul#objectList(class='drawingList')
 
             // /OBJECT PATH
+            // NEARBY OBJECTS
+            h3(align='center') Nearby Objects
+            #nearbyObjects
+                fieldset
+                    input#inputClientID(type='text', placeholder='clientID')
+                    input#inputCustomID(type='text', placeholder='customID')
+                    br
+                    input#inputLocation(type='text', value='{"type":"Point", "coordinates":["2.168", "41.387"]}', placeholder='{"type":"Point", "coordinates":["2.168", "41.387"]}')
+                    input#inputDistance(type='text', placeholder='distance')
+                    br
+                    input#inputOffset(type='text', placeholder='offset')
+                    input#inputFields(type='text', placeholder='field1,field2,...')
+                    br
+                    button#btnNearbyObjects Nearby Objects
+                    br
+                    ul#nearbyObjectList(class='drawingList')
+
+            // /NEARBY OBJECTS
             // LIST GEOFENCES
             h3(align='center') Geofences
             #listGeofences
@@ -41,4 +60,7 @@ html
                     ul#geofenceList(class='drawingList')
 
         // /LIST GEOFENCES
-        #map-canvas
+        #map-canvas-sidebar
+            #map-canvas-anchor
+            #map-canvas-container
+                #map-canvas

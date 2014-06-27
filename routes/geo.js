@@ -23,10 +23,82 @@ router.post('/addobject', function(req, res) {
         }
     );
     //Insert the object into the object list
+
     db.collection('objectlist').insert(req.body, function(err, result){
         databaseResultHandler(res,err,result);
     });
 });
+
+/*
+ * POST to addfields.
+ */
+router.post('/addfields', function(req, res) {
+    var db = req.db;
+
+    var params = ['clientID','customIDs'];
+    if (!checkParameters(req.body, res, params)) return;
+
+    db.collection('objectlist').ensureIndex(
+        {'clientID':1, 'customID':1}, 
+        {unique:true}, 
+        function(err,result){
+            if (err != null) {
+                callbackErrorHandler(err);
+            }
+        }
+    );
+
+    var clientID = req.body.clientID;
+    var customIDs = req.body.customIDs;
+
+
+    var update = {};
+    var fields = ['tags','related','categories'];
+    for (field in fields){
+        if (req.body[fields[field]] != null){
+            update[fields[field]]={'$each':req.body[fields[field]]};
+        }
+    }
+
+    //Insert the object into the object lis
+    db.collection('objectlist').update({"clientID":clientID,"customID":{'$in':customIDs}},
+        {'$addToSet':update}, 
+        {'multi':true},
+        function(err, result){
+        databaseResultHandler(res,err,result);
+    });
+});
+
+/*
+ * DELETE to deletefields.
+ */
+router.delete('/deletefields', function(req, res) {
+    var db = req.db;
+
+    var params = ['clientID','customIDs'];
+    if (!checkParameters(req.body, res, params)) return;
+
+    var clientID = req.body.clientID;
+    var customIDs = req.body.customIDs;
+
+    var update = {};
+    var fields = ['tags','related','categories'];
+    for (field in fields){
+        if (req.body[fields[field]] != null){
+            update[fields[field]]=req.body[fields[field]];
+        }
+    }
+    console.log(update);
+
+    //Insert the object into the object lis
+    db.collection('objectlist').update({"clientID":clientID,"customID":{'$in':customIDs}},
+        {'$pullAll':update}, 
+        {'multi':true},
+        function(err, result){
+        databaseResultHandler(res,err,result);
+    });
+});
+
 
 /*
  * POST to saveposition.
@@ -152,13 +224,13 @@ router.get('/nearbyobjects', function(req, res) {
     });
  
     req.query.location.coordinates = [parseFloat(req.query.location.coordinates[0]),parseFloat(req.query.location.coordinates[1])];
-    
+
     //Run the geoNear command
-    db.command({geoNear: 'lastpositionlist',
-        near: req.query.location,
-        spherical:'true',
-        query: {'position.time': {$gte:epoch-offset}},
-        maxDistance:parseFloat(req.query.distance)}, function (err, positions) {
+    db.command({'geoNear': 'lastpositionlist',
+        'near': req.query.location,
+        'spherical':'true',
+        'query': {'position.time': {'$gte':epoch-offset}},
+        'maxDistance':parseFloat(req.query.distance)}, function (err, positions) {
 
             if (err!=null){
                 databaseResultHandler(res,err,positions);
@@ -172,7 +244,18 @@ router.get('/nearbyobjects', function(req, res) {
                 async.each(positions.results, function(position, callback){
                     if (!(position.obj.clientID == clientID && position.obj.customID == customID)){
 
-                        db.collection('objectlist').findOne({'clientID':position.obj.clientID, 'customID':position.obj.customID}, function (err, object) {
+                        var query = {'clientID':position.obj.clientID, 'customID':position.obj.customID};
+                        if (req.query.fields != null){
+                            //var fields = {};
+                            req.query.fields.forEach(function(field){
+                                //fields[field] = customID;
+                                query[field] = customID;
+                            });
+                            //query['$elemMatch'] = fields;
+                        }
+                        console.log(query);
+
+                        db.collection('objectlist').findOne(query, function (err, object) {
                             if (err!=null){
                                 //databaseResultHandler(res,err,object);
                                 callbackErrorHandler(err);
@@ -184,7 +267,7 @@ router.get('/nearbyobjects', function(req, res) {
                                 delete position.obj._id;
                                 results.push(position);
                                 callback();
-                            } else callback("No object data for object with customID "+customID,"");
+                            } else callback();
                             
                         });
                     
@@ -553,6 +636,9 @@ function sendRequest(host,path,body){
 }
 
 function checkParameters(body,res,params){
+    sanitizeStrings(body);
+    sanitizeArrays(body);
+
     // validate that the given parameters exist
     var missing = [];
     for (param in params){
@@ -568,13 +654,46 @@ function checkParameters(body,res,params){
             missing.push(("'"+params[param].toString()+"'").replace(/,/g,":"));
         }
     }
+
     var err;
     if (missing.length > 0){
-        err = "Incorrect Parameters, missing: "+missing;
+        err = "Missing/Invalid Parameters: "+missing;
         res.send({error:2,cause:err});
         return false;
     }
     return true;
+}
+
+function sanitizeStrings(body){
+    traverseObject(body,function(item){
+        if (typeof(item) == "string"){
+            item = item.replace(/\s/g,'');
+        }
+        return item;
+    });
+}
+
+function sanitizeArrays(body){
+    traverseObject(body,function(item){
+        if (Array.isArray(item)){
+
+            item = item.filter(function(element,index) {
+                return (element!='' && element!=null && (item.indexOf(element)==index || typeof(element)=='number'));
+            });
+        }
+        return item;
+    });
+}
+
+function traverseObject(object, func){
+    for (key in object){
+        if (object[key] != null){
+            object[key] = func(object[key]);
+        } 
+        if (typeof(object[key])=="object"){
+            traverseObject(object[key],func);
+        }
+    }
 }
 
 module.exports = router;

@@ -6,6 +6,12 @@ $(document).ready(function() {
     // Add Object button click
     $('#btnAddObject').on('click', addObject);
 
+    // Add Fields button click
+    $('#btnAddFields').on('click', addFields);
+
+    // Delete Fields button click
+    $('#btnDeleteFields').on('click', deleteFields);
+
     // Save Position button click
     $('#btnSavePosition').on('click', savePosition);
 
@@ -71,7 +77,88 @@ function addObject(event) {
         
     });
 };
-   
+ 
+ // Add object
+function addFields(event) {
+    event.preventDefault();
+
+    // If it is, compile all user info into one object
+    var newObject = {
+        'clientID': $('#addFields fieldset input#inputClientID').val(),
+        'customIDs': $('#addFields fieldset input#inputCustomIDs').val().split(","),
+        'categories': $('#addFields fieldset input#inputCategories').val().split(","),
+        'tags': $('#addFields fieldset input#inputTags').val().split(","),
+        'related': $('#addFields fieldset input#inputRelated').val().split(","),
+    }
+
+    //create a hash
+    var dataString = JSON.stringify(newObject);
+    var timeString = (new Date).getTime()/1000;
+    var signature = CryptoJS.SHA1(dataString+timeString+clientSecret);
+
+
+    // Use AJAX to post the object to our service
+    $.ajax({
+        type: 'POST',
+        data: dataString,
+        url: '/geo/addfields',
+        contentType: 'application/json',
+        dataType: 'JSON',
+        headers:{
+            'X-Signature':signature,
+            'X-Authentication-Type':'SHA1',
+            'X-Timestamp':timeString
+        }
+    }).done(function( response ) {
+
+        console.log(response);
+        // Fill the response field on the webpage
+        $('#addFieldsResponse').text(JSON.stringify(response));
+
+        
+    });
+};
+
+ // Delete object
+function deleteFields(event) {
+    event.preventDefault();
+
+    // If it is, compile all user info into one object
+    var newObject = {
+        'clientID': $('#deleteFields fieldset input#inputClientID').val(),
+        'customIDs': $('#deleteFields fieldset input#inputCustomIDs').val().split(","),
+        'categories': $('#deleteFields fieldset input#inputCategories').val().split(","),
+        'tags': $('#deleteFields fieldset input#inputTags').val().split(","),
+        'related': $('#deleteFields fieldset input#inputRelated').val().split(","),
+    }
+
+    //create a hash
+    var dataString = JSON.stringify(newObject);
+    var timeString = (new Date).getTime()/1000;
+    var signature = CryptoJS.SHA1(dataString+timeString+clientSecret);
+
+
+    // Use AJAX to post the object to our service
+    $.ajax({
+        type: 'DELETE',
+        data: dataString,
+        url: '/geo/deletefields',
+        contentType: 'application/json',
+        dataType: 'JSON',
+        headers:{
+            'X-Signature':signature,
+            'X-Authentication-Type':'SHA1',
+            'X-Timestamp':timeString
+        }
+    }).done(function( response ) {
+
+        console.log(response);
+        // Fill the response field on the webpage
+        $('#deleteFieldsResponse').text(JSON.stringify(response));
+
+        
+    });
+};    
 
 // Add position
 function savePosition(event) {
@@ -155,12 +242,18 @@ function nearbyObjects(event) {
         'customID': $('#nearbyObjects fieldset input#inputCustomID').val(),
         'location': JSON.parse($('#nearbyObjects fieldset input#inputLocation').val()),
         'distance': $('#nearbyObjects fieldset input#inputDistance').val(),
-        'offset' : $('#nearbyObjects fieldset input#inputOffset').val()
+        'offset' : $('#nearbyObjects fieldset input#inputOffset').val(),
+        'fields' : $('#nearbyObjects fieldset input#inputFields').val().split(",")
     };
+
+    if (/^\s*$/.test(newObject['fields'])){
+        delete newObject['fields'];
+    }
 
     var dataString = JSON.stringify(newObject);
     var timeString = (new Date).getTime()/1000;
     var signature = CryptoJS.SHA1(dataString+timeString+clientSecret);
+    console.log(dataString+timeString+clientSecret);
 
 
     // Use AJAX to post the object to our service

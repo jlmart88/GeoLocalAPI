@@ -120,8 +120,7 @@ function verifySignature(req, callback){
             }
             else if (!((new Date).getTime() - parseFloat(req.headers['x-timestamp'])*1000 < expireTime)){
                 callback("Request expired", false);
-            }
-            callback(null,true);
+            } else callback(null,true);
         }
         else {
             callback("ClientID lookup error",false);

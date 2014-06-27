@@ -23,10 +23,10 @@ h3 {
 #queryDiv {
 	float:left; 
 	height:80%; 
-	width:19%; 
-	max-width:19%; 
+	width:20%; 
+	max-width:20%; 
 	display:inline-block; 
-	padding:1px;
+	margin:0px;
 
 } 
 
@@ -36,10 +36,20 @@ input, button {
 	font-weight: 300;
 }
 
+#map-canvas-sidebar{
+	height: 100%; 
+	width: 80%;
+	float:right;
+}
+#map-canvas-container{
+	height: 100%; 
+	width: 100%;
+	margin-top:0px;
+}
 #map-canvas { 
-	height: 80%; 
-	width: 80%; 
-	float:right 
+	height: 100%; 
+	width: 100%;
+	margin-top:0px;
 }
 
 .drawingList{

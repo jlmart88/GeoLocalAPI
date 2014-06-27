@@ -1,10 +1,13 @@
 window.drawingList = {};
 
+// TODO: clean up and compact the map drawing generating functions
+
 // DOM Ready =============================================================
 $(document).ready(function() {
     var drawingCounter = 0;
     var $drawingLists = $('.drawingList');
     var $objectList = $('#objectList');
+    var $nearbyObjectList = $('#nearbyObjectList');
     var $geofenceList = $('#geofenceList');
     var defaultMapOptions ={
             center: new google.maps.LatLng(41.387, 2.168),
@@ -15,15 +18,42 @@ $(document).ready(function() {
     function initialize() {
         window.map = new google.maps.Map(document.getElementById("map-canvas"),
             defaultMapOptions);
+
+        //make the map stick to the top when scrolling down
+        $(function() {
+        var move = function() {
+            var st = $(window).scrollTop();
+            var ot = $("#map-canvas-anchor").offset().top;
+            var s = $("#map-canvas-container");
+            if(st > ot) {
+                s.css({
+                    position: "fixed",
+                    top: "0px"
+                });
+            } else {
+                if(st <= ot) {
+                    s.css({
+                        position: "relative",
+                        top: ""
+                    });
+                }
+            }
+        };
+        $(window).scroll(move);
+        move();
+    });
     }
 
     google.maps.event.addDomListener(window, 'load', initialize);
 
- // Object Path button click
+    // Object Path button click
     $('#btnObjectPath').on('click', objectPath);
 
     // List Geofences button click
     $('#btnListGeofences').on('click', listGeofences);
+
+    // Nearby Objects button click
+    $('#btnNearbyObjects').on('click', nearbyObjects);
 
     $drawingLists.delegate('li', 'mouseover mouseout', function(event) {
         var $this = $(this).find('a');
@@ -178,6 +208,118 @@ $(document).ready(function() {
             alert('Please fill in all fields');
             return false;
         }
+    };
+
+    // Find nearby objects
+    function nearbyObjects(event) {
+        event.preventDefault();
+
+        var newObject = {
+            'clientID': $('#nearbyObjects fieldset input#inputClientID').val(),
+            'customID': $('#nearbyObjects fieldset input#inputCustomID').val(),
+            'location': JSON.parse($('#nearbyObjects fieldset input#inputLocation').val()),
+            'distance': $('#nearbyObjects fieldset input#inputDistance').val(),
+            'offset' : $('#nearbyObjects fieldset input#inputOffset').val(),
+            'fields' : $('#nearbyObjects fieldset input#inputFields').val().split(",")
+        };
+
+        if (/^\s*$/.test(newObject['fields'])){
+            delete newObject['fields'];
+        }
+
+        var clientSecret = $('#clientSecret fieldset input#inputClientSecret').val();
+        var dataString = JSON.stringify(newObject);
+        var timeString = (new Date).getTime()/1000;
+        var signature = CryptoJS.SHA1(dataString+timeString+clientSecret);
+        console.log(dataString+timeString+clientSecret);
+
+
+        // Use AJAX to post the object to our service
+        $.ajax({
+            type: 'GET',
+            data: newObject,
+            url: '/geo/nearbyobjects',
+            dataType: 'JSON',
+            headers:{
+                'X-Signature':signature,
+                'X-Authentication-Type':'SHA1',
+                'X-Timestamp':timeString
+            }
+        }).done(function( response ) {
+
+            //Draw the path on the map as Markers and a Polyline
+                if (response.error == 0){
+                    //Create a bounds to set our map view to after we are finished
+                    var latLngBounds = window.map.getBounds();
+                    var extended = false;
+                    var markerArray = [];
+
+                    //Iterate through responses, creating markers and polyline points
+                    for (object in response.response){
+                        var lat = response.response[object]['obj']['position'].location.coordinates[1];
+                        var lng = response.response[object]['obj']['position'].location.coordinates[0];
+                        var time = response.response[object]['obj']['position'].time;
+
+                        var timeString = (new Date(time*1000)).toLocaleString();
+
+                        var myLatlng = new google.maps.LatLng(lat,lng);
+                        //Extend our map view to include this new location
+                        if (!(latLngBounds.contains(myLatlng))){
+                            latLngBounds.extend(myLatlng);
+                            extended = true;
+                        }
+
+                        var marker = new google.maps.Marker({
+                            icon: "http://www.google.com/intl/en_us/mapfiles/ms/micons/blue-dot.png",
+                            animation: google.maps.Animation.DROP,
+                            position: myLatlng,
+                            title: "customID: " + response.response[object]['obj'].customID + " at " + timeString
+                        });
+
+                        // To add the marker to the map, call setMap();
+                        marker.setMap(window.map);
+
+                        markerArray.push(marker);
+                    }
+
+                    //add the main object to the group in a different color
+                    var lat = newObject.location.coordinates[1];
+                    var lng = newObject.location.coordinates[0];
+
+                    var myLatlng = new google.maps.LatLng(lat,lng);
+                    //Extend our map view to include this new location
+                    if (!(latLngBounds.contains(myLatlng))){
+                        latLngBounds.extend(myLatlng);
+                        extended = true;
+                    }
+
+                    var marker = new google.maps.Marker({
+                        icon: "http://www.google.com/intl/en_us/mapfiles/ms/micons/green-dot.png",
+                        animation: google.maps.Animation.DROP,
+                        position: myLatlng,
+                        title: "customID: " + response.response[object]['obj'].customID
+                    });
+
+                    // To add the marker to the map, call setMap();
+                    marker.setMap(window.map);
+
+                    markerArray.push(marker);
+
+                    addDrawingItem($nearbyObjectList,$('#nearbyObjects fieldset input#inputCustomID').val(),markerArray);
+
+                    //Set the bounds of the map view depending on whether we have a path or a single point
+                    if (response.response.length>0){
+                        if ((response.response.length>1 && extended) || extended){
+                            window.map.fitBounds(latLngBounds);
+                        } else if (response.response.length==1){
+                            window.map.setCenter(myLatlng);
+                        }
+                    }
+                }
+                else {
+                    alert(JSON.stringify(response));
+                }
+        });
     };
 
     function listGeofences(event) {

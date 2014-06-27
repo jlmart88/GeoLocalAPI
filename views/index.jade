@@ -24,6 +24,42 @@ block content
                 |  <span id='addObjectResponse'></span>
         // /ADD OBJECT
 
+        // ADD FIELDS
+        h2 Add Fields
+        #addFields
+            fieldset
+                input#inputClientID(type='text', placeholder='clientID')
+                input#inputCustomIDs(type='text', placeholder='customID1,customID2,...')
+                br
+                input#inputCategories(type='text', placeholder='category1,category2,...')
+                input#inputTags(type='text', placeholder='tag1,tag2,...')
+                br
+                input#inputRelated(type='text', placeholder='relatedID1,relatedID2,...')
+                br
+                button#btnAddFields Add Fields
+                br
+                strong Response:
+                |  <span id='addFieldsResponse'></span>
+        // /ADD FIELDS
+
+        // DELETE FIELDS
+        h2 Delete Fields
+        #deleteFields
+            fieldset
+                input#inputClientID(type='text', placeholder='clientID')
+                input#inputCustomIDs(type='text', placeholder='customID1,customID2,...')
+                br
+                input#inputCategories(type='text', placeholder='category1,category2,...')
+                input#inputTags(type='text', placeholder='tag1,tag2,...')
+                br
+                input#inputRelated(type='text', placeholder='relatedID1,relatedID2,...')
+                br
+                button#btnDeleteFields Delete Fields
+                br
+                strong Response:
+                |  <span id='deleteFieldsResponse'></span>
+        // /DELETE FIELDS
+
         // SAVE POSITION
         h2 Save Position
         #savePosition
@@ -64,6 +100,7 @@ block content
                 input#inputDistance(type='text', placeholder='distance')
                 br
                 input#inputOffset(type='text', placeholder='offset')
+                input#inputFields(type='text', placeholder='field1,field2,...')
                 br
                 button#btnNearbyObjects Nearby Objects
                 br
