@@ -50,31 +50,11 @@ function addObject(event) {
         'related': $('#addObject fieldset input#inputRelated').val().split(","),
     }
 
-    //create a hash
-    var dataString = JSON.stringify(newObject);
-    var timeString = (new Date).getTime()/1000;
-    var signature = CryptoJS.SHA1(dataString+timeString+clientSecret);
-
-
     // Use AJAX to post the object to our service
-    $.ajax({
-        type: 'POST',
-        data: dataString,
-        url: '/geo/addobject',
-        contentType: 'application/json',
-        dataType: 'JSON',
-        headers:{
-            'X-Signature':signature,
-            'X-Authentication-Type':'SHA1',
-            'X-Timestamp':timeString
-        }
-    }).done(function( response ) {
-
+    $.ajax(createRequest('POST','/geo/addobject',newObject)).done(function( response ) {
         console.log(response);
         // Fill the response field on the webpage
         $('#addObjectResponse').text(JSON.stringify(response));
-
-        
     });
 };
  
@@ -91,31 +71,11 @@ function addFields(event) {
         'related': $('#addFields fieldset input#inputRelated').val().split(","),
     }
 
-    //create a hash
-    var dataString = JSON.stringify(newObject);
-    var timeString = (new Date).getTime()/1000;
-    var signature = CryptoJS.SHA1(dataString+timeString+clientSecret);
-
-
     // Use AJAX to post the object to our service
-    $.ajax({
-        type: 'POST',
-        data: dataString,
-        url: '/geo/addfields',
-        contentType: 'application/json',
-        dataType: 'JSON',
-        headers:{
-            'X-Signature':signature,
-            'X-Authentication-Type':'SHA1',
-            'X-Timestamp':timeString
-        }
-    }).done(function( response ) {
-
+    $.ajax(createRequest('POST','/geo/addfields',newObject)).done(function( response ) {
         console.log(response);
         // Fill the response field on the webpage
         $('#addFieldsResponse').text(JSON.stringify(response));
-
-        
     });
 };
 
@@ -132,31 +92,11 @@ function deleteFields(event) {
         'related': $('#deleteFields fieldset input#inputRelated').val().split(","),
     }
 
-    //create a hash
-    var dataString = JSON.stringify(newObject);
-    var timeString = (new Date).getTime()/1000;
-    var signature = CryptoJS.SHA1(dataString+timeString+clientSecret);
-
-
     // Use AJAX to post the object to our service
-    $.ajax({
-        type: 'DELETE',
-        data: dataString,
-        url: '/geo/deletefields',
-        contentType: 'application/json',
-        dataType: 'JSON',
-        headers:{
-            'X-Signature':signature,
-            'X-Authentication-Type':'SHA1',
-            'X-Timestamp':timeString
-        }
-    }).done(function( response ) {
-
+    $.ajax(createRequest('DELETE','/geo/deleteFields',newObject)).done(function( response ) {
         console.log(response);
         // Fill the response field on the webpage
         $('#deleteFieldsResponse').text(JSON.stringify(response));
-
-        
     });
 };    
 
@@ -173,30 +113,11 @@ function savePosition(event) {
         'customID': $('#savePosition fieldset input#inputCustomID').val(),
         'position': positionJSON};
 
-    //stringify the object, then send as 'application/json' to prevent ajax from converting numbers to strings
-    //create a hash
-    var dataString = JSON.stringify(newObject);
-    var timeString = (new Date).getTime()/1000;
-    var signature = CryptoJS.SHA1(dataString+timeString+clientSecret);
-
     // Use AJAX to post the object to our service
-    $.ajax({
-        type: 'POST',
-        data: dataString,
-        contentType: 'application/json',
-        url: '/geo/saveposition',
-        dataType: 'JSON',
-        headers:{
-            'X-Signature':signature,
-            'X-Authentication-Type':'SHA1',
-            'X-Timestamp':timeString
-        }
-    }).done(function( response ) {
-
+    $.ajax(createRequest('POST','/geo/saveposition',newObject)).done(function( response ) {
         console.log(response);
         // Fill the response field on the webpage
         $('#savePositionResponse').text(JSON.stringify(response));
-
     });
 };
 
@@ -209,27 +130,11 @@ function lastPosition(event) {
         'customID': $('#lastPosition fieldset input#inputCustomID').val()
     };
 
-    var dataString = JSON.stringify(newObject);
-    var timeString = (new Date).getTime()/1000;
-    var signature = CryptoJS.SHA1(dataString+timeString+clientSecret);
-
     // Use AJAX to post the object to our service
-    $.ajax({
-        type: 'GET',
-        data: newObject,
-        url: '/geo/lastposition',
-        dataType: 'JSON',
-        headers:{
-            'X-Signature':signature,
-            'X-Authentication-Type':'SHA1',
-            'X-Timestamp':timeString
-        }
-    }).done(function( response ) {
-
-            console.log(response);
-            // Fill the response field on the webpage
-            $('#lastPositionResponse').text(JSON.stringify(response));
-
+    $.ajax(createRequest('GET','/geo/lastposition',newObject)).done(function( response ) {
+        console.log(response);
+        // Fill the response field on the webpage
+        $('#lastPositionResponse').text(JSON.stringify(response));
     });
 };
 
@@ -250,29 +155,11 @@ function nearbyObjects(event) {
         delete newObject['fields'];
     }
 
-    var dataString = JSON.stringify(newObject);
-    var timeString = (new Date).getTime()/1000;
-    var signature = CryptoJS.SHA1(dataString+timeString+clientSecret);
-    console.log(dataString+timeString+clientSecret);
-
-
     // Use AJAX to post the object to our service
-    $.ajax({
-        type: 'GET',
-        data: newObject,
-        url: '/geo/nearbyobjects',
-        dataType: 'JSON',
-        headers:{
-            'X-Signature':signature,
-            'X-Authentication-Type':'SHA1',
-            'X-Timestamp':timeString
-        }
-    }).done(function( response ) {
-
-            console.log(response);
-            // Fill the response field on the webpage
-            $('#nearbyObjectsResponse').text(JSON.stringify(response));
-
+    $.ajax(createRequest('GET','/geo/nearbyobjects',newObject)).done(function( response ) {
+        console.log(response);
+        // Fill the response field on the webpage
+        $('#nearbyObjectsResponse').text(JSON.stringify(response));
     });
 };
 
@@ -287,28 +174,11 @@ function objectPath(event) {
         'end': $('#objectPath fieldset input#inputEnd').val()
     };
 
-    var dataString = JSON.stringify(newObject);
-    var timeString = (new Date).getTime()/1000;
-    var signature = CryptoJS.SHA1(dataString+timeString+clientSecret);
-
-
     // Use AJAX to post the object to our service
-    $.ajax({
-        type: 'GET',
-        data: newObject,
-        url: '/geo/objectPath',
-        dataType: 'JSON',
-        headers:{
-            'X-Signature':signature,
-            'X-Authentication-Type':'SHA1',
-            'X-Timestamp':timeString
-        }
-    }).done(function( response ) {
-
-            console.log(response);
-            // Fill the response field on the webpage
-            $('#objectPathResponse').text(JSON.stringify(response));
-
+    $.ajax(createRequest('GET','/geo/objectPath',newObject)).done(function( response ) {
+        console.log(response);
+        // Fill the response field on the webpage
+        $('#objectPathResponse').text(JSON.stringify(response));
     });
 };
 
@@ -325,30 +195,11 @@ function addGeofence(event) {
         'distance': $('#addGeofence fieldset input#inputDistance').val().split(","),
     }
 
-    //create a hash
-    var dataString = JSON.stringify(newObject);
-    var timeString = (new Date).getTime()/1000;
-    var signature = CryptoJS.SHA1(dataString+timeString+clientSecret);
-
-
     // Use AJAX to post the object to our service
-    $.ajax({
-        type: 'POST',
-        data: dataString,
-        url: '/geo/geofence',
-        contentType: 'application/json',
-        dataType: 'JSON',
-        headers:{
-            'X-Signature':signature,
-            'X-Authentication-Type':'SHA1',
-            'X-Timestamp':timeString
-        }
-    }).done(function( response ) {
-
+    $.ajax(createRequest('POST','/geo/geofence',newObject)).done(function( response ) {
         console.log(response);
         // Fill the response field on the webpage
         $('#addGeofenceResponse').text(JSON.stringify(response));
-
     });
     
 };
@@ -361,27 +212,11 @@ function listGeofences(event) {
         'clientID': $('#listGeofences fieldset input#inputClientID').val()
     };
 
-    var dataString = JSON.stringify(newObject);
-    var timeString = (new Date).getTime()/1000;
-    var signature = CryptoJS.SHA1(dataString+timeString+clientSecret);
-
     // Use AJAX to post the object to our service
-    $.ajax({
-        type: 'GET',
-        data: newObject,
-        url: '/geo/geofence',
-        dataType: 'JSON',
-        headers:{
-            'X-Signature':signature,
-            'X-Authentication-Type':'SHA1',
-            'X-Timestamp':timeString
-        }
-    }).done(function( response ) {
-
-            console.log(response);
-            // Fill the response field on the webpage
-            $('#listGeofencesResponse').text(JSON.stringify(response));
-
+    $.ajax(createRequest('GET','/geo/geofence',newObject)).done(function( response ) {
+        console.log(response);
+        // Fill the response field on the webpage
+        $('#listGeofencesResponse').text(JSON.stringify(response));
     });
 };
 
@@ -394,26 +229,30 @@ function deleteGeofence(event) {
         'geofenceID': $('#deleteGeofence fieldset input#inputGeofenceID').val()
     };
 
+    // Use AJAX to post the object to our service
+    $.ajax(createRequest('DELETE','/geo/geofence',newObject)).done(function( response ) {
+        console.log(response);
+        // Fill the response field on the webpage
+        $('#deleteGeofenceResponse').text(JSON.stringify(response));
+    });
+};
+
+function createRequest(typeString, urlString, newObject){
     var dataString = JSON.stringify(newObject);
     var timeString = (new Date).getTime()/1000;
     var signature = CryptoJS.SHA1(dataString+timeString+clientSecret);
 
-    // Use AJAX to post the object to our service
-    $.ajax({
-        type: 'DELETE',
-        data: newObject,
-        url: '/geo/geofence',
+    var request = {
+        type: typeString,
+        data: typeString == 'GET' ? newObject : dataString,
+        url: urlString,
+        contentType : 'application/json',
         dataType: 'JSON',
         headers:{
             'X-Signature':signature,
             'X-Authentication-Type':'SHA1',
             'X-Timestamp':timeString
         }
-    }).done(function( response ) {
-
-            console.log(response);
-            // Fill the response field on the webpage
-            $('#deleteGeofenceResponse').text(JSON.stringify(response));
-
-    });
-};
+    };
+    return request;
+}
