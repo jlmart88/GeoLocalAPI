@@ -76,16 +76,16 @@ router.delete('/deletefields', function(req, res) {
     var db = req.db;
 
     var params = ['clientID','customIDs'];
-    if (!checkParameters(req.body, res, params)) return;
+    if (!checkParameters(req.query, res, params)) return;
 
-    var clientID = req.body.clientID;
-    var customIDs = req.body.customIDs;
+    var clientID = req.query.clientID;
+    var customIDs = req.query.customIDs;
 
     var update = {};
     var fields = ['tags','related','categories'];
     for (field in fields){
-        if (req.body[fields[field]] != null){
-            update[fields[field]]=req.body[fields[field]];
+        if (req.query[fields[field]] != null){
+            update[fields[field]]=req.query[fields[field]];
         }
     }
     console.log(update);
@@ -438,14 +438,13 @@ router.get('/geofence', function(req, res) {
  */
 router.delete('/geofence', function(req, res) {
     var db = req.db;
-    //console.log(req.body);
 
     var params = ['clientID','geofenceID'];
-    if (!checkParameters(req.body, res, params)) return;
+    if (!checkParameters(req.query, res, params)) return;
 
 
     //First query the object collection
-    db.collection('geofencelist').remove(req.body, function (err, geofences) {
+    db.collection('geofencelist').remove(req.query, function (err, geofences) {
         if (err!=null || geofences!=null){
             databaseResultHandler(res,err,geofences);
         }
