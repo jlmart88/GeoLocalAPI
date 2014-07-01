@@ -225,7 +225,7 @@ function deleteGeofence(event) {
     event.preventDefault();
 
     var newObject = {
-        'clientID': $('#listGeofences fieldset input#inputClientID').val(),
+        'clientID': $('#deleteGeofence fieldset input#inputClientID').val(),
         'geofenceID': $('#deleteGeofence fieldset input#inputGeofenceID').val()
     };
 
@@ -245,7 +245,7 @@ function createRequest(typeString, urlString, newObject){
     var request = {
         type: typeString,
         data: typeString == 'GET' ? newObject : dataString,
-        url: urlString,
+        url: typeString == 'DELETE' ? urlString+'?'+$.param(newObject) : urlString,
         contentType : 'application/json',
         dataType: 'JSON',
         headers:{

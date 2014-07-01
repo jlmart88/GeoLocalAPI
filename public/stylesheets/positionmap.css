@@ -29,7 +29,9 @@ h3 {
 	margin:0px;
 
 } 
-
+input {
+	resize:horizontal;
+}
 input, button {
 	font-size: 16px;
 	font-family:"Helvetica Neue", Helvetica, sans-serif;

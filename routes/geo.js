@@ -212,7 +212,7 @@ router.get('/nearbyobjects', function(req, res) {
     var offset;
     var epoch = (new Date).getTime() / 1000;
 
-    if (req.query.offset == '' || req.query.offset == null){
+    if (!req.query.offset){
         offset = 24*60*60; //set default offset to 24 hours if not given
     } else offset = parseFloat(req.query.offset);
 
@@ -298,11 +298,11 @@ router.get('/objectpath', function(req, res) {
     var end;
     var epoch = (new Date).getTime() / 1000;
 
-    if (req.query.start == ''){
+    if (!req.query.start){
         start = epoch - 24*60*60; //set default start to 24 hours ago
     } else start = parseFloat(req.query.start);
 
-    if (req.query.end == ''){
+    if (!req.query.end){
         end = epoch; //set default end to now
     } else end = parseFloat(req.query.end);
 

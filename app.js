@@ -90,42 +90,79 @@ function verifySignature(req, callback){
     var db = req.db;
     var body;
     //console.log(req); 
-    if (req.method == 'POST' || req.method == 'DELETE'){
+    if (req.method == 'POST'){
         body = req.body;
     } else body = req.query;
-    db.collection('clientidlist').findOne({'clientID':body.clientID}, function(err, result){
-        if (err!=null){
-            callback(err,false);
+
+    // validate that the proper headers exist
+    var missing = [];
+    params = ['x-signature', 'x-authentication-type', 'x-timestamp'];
+    for (param in params){
+        data = req.headers[params[param]];
+        if (data == '' || data == null){
+            missing.push(("'"+params[param].toString()+"'").replace(/,/g,":"));
         }
-        else if (result!=null){
-            console.log("Server-side String:");
-            console.log(JSON.stringify(body)+req.headers['x-timestamp']+result.clientSecret);
-            
-            var signature = crypto.createHash(req.headers['x-authentication-type']).update(
-                        JSON.stringify(body)+req.headers['x-timestamp']+result.clientSecret).digest('hex');
-            console.log("Server-side Hash:");
-            console.log(signature);
-            console.log("Received Signature:");
-            console.log(req.headers['x-signature']);
-            console.log("Current Server Time:");
-            console.log((new Date).getTime());
-            console.log("Received Time:");
-            console.log(parseFloat(req.headers['x-timestamp'])*1000);
-            console.log("Time Difference:");
-            console.log((new Date).getTime() - parseFloat(req.headers['x-timestamp'])*1000);    
-           //Check that the signature is correct and the request is less than 5 minutes old
-            var expireTime = 1000*60*5;
-            if (signature != req.headers['x-signature']){
-                callback("Signature did not match", false);
+    }
+
+    if (missing.length > 0){
+        callback("Missing/Invalid Headers: "+missing,false);
+    }
+    else {
+        db.collection('clientidlist').findOne({'clientID':body.clientID}, function(err, result){
+            if (err!=null){
+                callback(err,false);
             }
-            else if (!((new Date).getTime() - parseFloat(req.headers['x-timestamp'])*1000 < expireTime)){
-                callback("Request expired", false);
-            } else callback(null,true);
+            else if (result!=null){
+                console.log("Server-side String:");
+                console.log(JSON.stringify(body)+req.headers['x-timestamp']+result.clientSecret);
+                
+                var signature = crypto.createHash(req.headers['x-authentication-type']).update(
+                            JSON.stringify(body)+req.headers['x-timestamp']+result.clientSecret).digest('hex');
+                console.log("Server-side Hash:");
+                console.log(signature);
+                console.log("Received Signature:");
+                console.log(req.headers['x-signature']);
+                console.log("Current Server Time:");
+                console.log((new Date).getTime());
+                console.log("Received Time:");
+                console.log(parseFloat(req.headers['x-timestamp'])*1000);
+                console.log("Time Difference:");
+                console.log((new Date).getTime() - parseFloat(req.headers['x-timestamp'])*1000);    
+               //Check that the signature is correct and the request is less than 5 minutes old
+                var expireTime = 1000*60*5;
+                if (signature != req.headers['x-signature']){
+                    callback("Signature did not match", false);
+                }
+                else if (!((new Date).getTime() - parseFloat(req.headers['x-timestamp'])*1000 < expireTime)){
+                    callback("Request expired", false);
+                } else callback(null,true);
+            }
+            else {
+                callback("ClientID lookup error",false);
+            }
+        });
+    }
+}
+
+function checkHeaders(body,res){
+
+    // validate that the proper headers exist
+    var missing = [];
+    params = ['x-signature', 'x-authentication-type', 'x-timestamp'];
+    for (param in params){
+        data = body[params[param]];
+        if (data == '' || data == null){
+            missing.push(("'"+params[param].toString()+"'").replace(/,/g,":"));
         }
-        else {
-            callback("ClientID lookup error",false);
-        }
-    });
+    }
+
+    var err;
+    if (missing.length > 0){
+        err = "Missing/Invalid Headers: "+missing;
+        res.send({error:2,cause:err});
+        return false;
+    }
+    return true;
 }
 
 // Send an unauthroized request error to the client
