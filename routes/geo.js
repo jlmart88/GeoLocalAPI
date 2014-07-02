@@ -197,6 +197,95 @@ router.get('/lastposition', function(req, res) {
     });
 });
 
+// /*
+//  * GET nearbyObjects.
+//  */
+// router.get('/nearbyobjects', function(req, res) {
+//     var db = req.db;
+//     //console.log(req);
+
+//     var params = ['clientID','customID',['location','coordinates'],['location','type'],'distance'];
+//     if (!checkParameters(req.query, res, params)) return;
+
+//     var clientID = req.query.clientID;
+//     var customID = req.query.customID;
+//     var offset;
+//     var epoch = (new Date).getTime() / 1000;
+
+//     if (!req.query.offset){
+//         offset = 24*60*60; //set default offset to 24 hours if not given
+//     } else offset = parseFloat(req.query.offset);
+
+//     //Create a 2dsphere index in the last position list to allow for geoNear query
+//     db.collection('lastpositionlist').ensureIndex({'position.location':'2dsphere'}, function(err,result){
+//         if (err!=null){
+//             callbackErrorHandler(err);
+//         }
+//     });
+ 
+//     req.query.location.coordinates = [parseFloat(req.query.location.coordinates[0]),parseFloat(req.query.location.coordinates[1])];
+
+//     //Run the geoNear command
+//     db.command({'geoNear': 'lastpositionlist',
+//         'near': req.query.location,
+//         'spherical':'true',
+//         'query': {'position.time': {'$gte':epoch-offset}},
+//         'maxDistance':parseFloat(req.query.distance)}, function (err, positions) {
+
+//             if (err!=null){
+//                 databaseResultHandler(res,err,positions);
+//             }
+
+//             else if (positions != null){
+
+//                 // larger scope array to hold the augmented data we will create
+//                 var results = [];
+//                 //Augment all of the results with information about the objects from the object database
+//                 async.each(positions.results, function(position, callback){
+//                     if (!(position.obj.clientID == clientID && position.obj.customID == customID)){
+
+//                         var query = {'clientID':position.obj.clientID, 'customID':position.obj.customID};
+//                         if (req.query.fields != null){
+//                             //var fields = {};
+//                             req.query.fields.forEach(function(field){
+//                                 //fields[field] = customID;
+//                                 query[field] = customID;
+//                             });
+//                             //query['$elemMatch'] = fields;
+//                         }
+//                         console.log(query);
+
+//                         db.collection('objectlist').findOne(query, function (err, object) {
+//                             if (err!=null){
+//                                 //databaseResultHandler(res,err,object);
+//                                 callbackErrorHandler(err);
+//                             }
+//                             if (object!=null){
+//                                 position.obj.categories = object.categories;
+//                                 position.obj.tags = object.tags;
+//                                 position.obj.related = object.related;
+//                                 delete position.obj._id;
+//                                 results.push(position);
+//                                 callback();
+//                             } else callback();
+                            
+//                         });
+                    
+//                     } else callback();
+
+
+//                 }, function(err){
+//                     console.log(results);
+//                     databaseResultHandler(res,err,results);
+//                 });
+                
+                
+//             } else databaseResultHandler(res,"No position data in database","");
+//         }
+//     );
+// });
+
+
 /*
  * GET nearbyObjects.
  */
@@ -212,78 +301,87 @@ router.get('/nearbyobjects', function(req, res) {
     var offset;
     var epoch = (new Date).getTime() / 1000;
 
-    if (!req.query.offset){
-        offset = 24*60*60; //set default offset to 24 hours if not given
-    } else offset = parseFloat(req.query.offset);
+    var query = {'clientID':clientID};
+    var fields = ['tags','related','categories'];
+    for (field in fields){
+        if (req.query[fields[field]] != null){
+            query[fields[field]]={'$all':req.query[fields[field]]};
+        }
+    }
+    console.log(query);
 
-    //Create a 2dsphere index in the last position list to allow for geoNear query
-    db.collection('lastpositionlist').ensureIndex({'position.location':'2dsphere'}, function(err,result){
+
+    db.collection('objectlist').find(query).toArray(function(err, objects) {
         if (err!=null){
-            callbackErrorHandler(err);
+            databaseResultHandler(res,err,objects);
         }
-    });
- 
-    req.query.location.coordinates = [parseFloat(req.query.location.coordinates[0]),parseFloat(req.query.location.coordinates[1])];
 
-    //Run the geoNear command
-    db.command({'geoNear': 'lastpositionlist',
-        'near': req.query.location,
-        'spherical':'true',
-        'query': {'position.time': {'$gte':epoch-offset}},
-        'maxDistance':parseFloat(req.query.distance)}, function (err, positions) {
+        else if (objects!=null){
+            if (!req.query.offset){
+                offset = 24*60*60; //set default offset to 24 hours if not given
+            } else offset = parseFloat(req.query.offset);
 
-            if (err!=null){
-                databaseResultHandler(res,err,positions);
+            var locQuery = {'clientID':clientID, 'position.time': {'$gte':epoch-offset}};
+            var objectFields = {}
+            var customIDs = []
+            for (object in objects){
+                customIDs.push(objects[object].customID);
+                objectFields[objects[object].customID] = {};
+                for (field in fields){
+                    if (objects[object][fields[field]] != null){
+                        objectFields[objects[object].customID][fields[field]]=objects[object][fields[field]];
+                    }
+                }
             }
+            locQuery['customID'] = {'$in':customIDs};
+            console.log(locQuery);
 
-            else if (positions != null){
+            //Create a 2dsphere index in the last position list to allow for geoNear query
+            db.collection('lastpositionlist').ensureIndex({'position.location':'2dsphere'}, function(err,result){
+                if (err!=null){
+                    callbackErrorHandler(err);
+                }
+            });
+     
+            req.query.location.coordinates = [parseFloat(req.query.location.coordinates[0]),parseFloat(req.query.location.coordinates[1])];
 
-                // larger scope array to hold the augmented data we will create
-                var results = [];
-                //Augment all of the results with information about the objects from the object database
-                async.each(positions.results, function(position, callback){
-                    if (!(position.obj.clientID == clientID && position.obj.customID == customID)){
+            //Run the geoNear command
+            db.command({'geoNear': 'lastpositionlist',
+                'near': req.query.location,
+                'spherical':'true',
+                'query': locQuery,
+                'maxDistance':parseFloat(req.query.distance)}, function (err, positions) {
 
-                        var query = {'clientID':position.obj.clientID, 'customID':position.obj.customID};
-                        if (req.query.fields != null){
-                            //var fields = {};
-                            req.query.fields.forEach(function(field){
-                                //fields[field] = customID;
-                                query[field] = customID;
-                            });
-                            //query['$elemMatch'] = fields;
-                        }
-                        console.log(query);
-
-                        db.collection('objectlist').findOne(query, function (err, object) {
-                            if (err!=null){
-                                //databaseResultHandler(res,err,object);
-                                callbackErrorHandler(err);
+                    if (err!=null){
+                        databaseResultHandler(res,err,positions);
+                    }
+                    else if (positions != null){
+                        console.log(positions);
+                        for (position in positions.results){
+                            if (positions.results[position].customID == customID){
+                                delete positions.results[position];
+                            } 
+                            else {
+                                console.log(fields);
+                                for (field in fields){
+                                    if (objectFields[positions.results[position].obj.customID][fields[field]] != null){
+                                        positions.results[position].obj[fields[field]]=objectFields[positions.results[position].obj.customID][fields[field]];
+                                    }
+                                }
+                                delete positions.results[position].obj._id;
                             }
-                            if (object!=null){
-                                position.obj.categories = object.categories;
-                                position.obj.tags = object.tags;
-                                position.obj.related = object.related;
-                                delete position.obj._id;
-                                results.push(position);
-                                callback();
-                            } else callback();
-                            
-                        });
+                        }
+                        databaseResultHandler(res,err,positions.results);       
+                    }
+                    else databaseResultHandler(res,"No location data in database",""); 
+            });
                     
-                    } else callback();
-
-
-                }, function(err){
-                    console.log(results);
-                    databaseResultHandler(res,err,results);
-                });
-                
-                
-            } else databaseResultHandler(res,"No position data in database","");
-        }
-    );
+                    
+        } else databaseResultHandler(res,"No position data in database","");
+        
+    });
 });
+
 
 /*
  * GET objectPath.

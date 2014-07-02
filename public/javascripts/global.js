@@ -89,7 +89,7 @@ function deleteFields(event) {
         'customIDs': $('#deleteFields fieldset input#inputCustomIDs').val().split(","),
         'categories': $('#deleteFields fieldset input#inputCategories').val().split(","),
         'tags': $('#deleteFields fieldset input#inputTags').val().split(","),
-        'related': $('#deleteFields fieldset input#inputRelated').val().split(","),
+        'related': $('#deleteFields fieldset input#inputRelated').val().split(",")
     }
 
     // Use AJAX to post the object to our service
@@ -148,13 +148,18 @@ function nearbyObjects(event) {
         'location': JSON.parse($('#nearbyObjects fieldset input#inputLocation').val()),
         'distance': $('#nearbyObjects fieldset input#inputDistance').val(),
         'offset' : $('#nearbyObjects fieldset input#inputOffset').val(),
-        'fields' : $('#nearbyObjects fieldset input#inputFields').val().split(",")
+        'categories': $('#nearbyObjects fieldset input#inputCategories').val().split(","),
+        'tags': $('#nearbyObjects fieldset input#inputTags').val().split(","),
+        'related': $('#nearbyObjects fieldset input#inputRelated').val().split(",")
     };
-
-    if (/^\s*$/.test(newObject['fields'])){
-        delete newObject['fields'];
+    var fields = ['tags','related','categories'];
+    console.log(newObject);
+    for (field in fields){
+        if (/^\s*$/.test(newObject[fields[field]])){
+            delete newObject[fields[field]];
+        }
     }
-
+    
     // Use AJAX to post the object to our service
     $.ajax(createRequest('GET','/geo/nearbyobjects',newObject)).done(function( response ) {
         console.log(response);
