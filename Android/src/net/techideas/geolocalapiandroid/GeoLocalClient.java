@@ -12,7 +12,7 @@ import android.content.Context;
 import com.loopj.android.http.*;
 
 public class GeoLocalClient {
-	 private static final String BASE_URL = "http://dev.techideas.net:3000/geo";
+	 private static final String BASE_URL = "http://dev.techideas.net:3000/geo/";
 
 	  private static AsyncHttpClient client = new AsyncHttpClient();
 	  
@@ -37,6 +37,18 @@ public class GeoLocalClient {
 		try {
 			entity = new ByteArrayEntity(jsonString.getBytes("UTF-8"));
 			client.post(c, getAbsoluteUrl(url), headers, entity, "application/json", responseHandler);
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}   
+	  }
+	  
+	  public static void put(Context c, String url, JSONObject object, Header[] headers, AsyncHttpResponseHandler responseHandler) {
+		  String jsonString = object.toString();
+		  ByteArrayEntity entity;
+		try {
+			entity = new ByteArrayEntity(jsonString.getBytes("UTF-8"));
+			client.put(c, getAbsoluteUrl(url), headers, entity, "application/json", responseHandler);
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

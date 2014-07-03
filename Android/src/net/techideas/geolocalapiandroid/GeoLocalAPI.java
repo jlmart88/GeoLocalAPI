@@ -11,6 +11,7 @@ import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 
 import android.content.Context;
+import android.location.Location;
 import android.util.Log;
 
 import org.json.*;
@@ -29,109 +30,24 @@ public class GeoLocalAPI {
 		// construct the parameters to send
 		JSONObject object = new JSONObject();
 		try {
-			object.put("clientID", this.clientID);
-			object.put("customID", customID);
-			
 			if (fields != null){
 				for (ObjectField field:ObjectField.values()){
 					object.put(field.getName(), fields.getItems(field));
 				}
 			}
+			//construct headers
+			Header[] headers = constructHeaders(object);
+			
+			GeoLocalClient.post(c, this.clientID+"/objects/"+customID, object, headers, callback);
 			
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-		//construct headers
-		Header[] headers = constructHeaders(object);
-		
-		GeoLocalClient.post(c, "/addobject", object, headers, callback);
 	}
 	
 	public void addObject(Context c, String customID, GeoLocalJSONArrayCallback callback){
 		addObject(c, customID, null, callback);
-	}
-	
-	public void addFields(Context c, JSONArray customIDs, GeoLocalAPIObjectFields fields, GeoLocalStringCallback callback){
-		// construct the parameters to send
-		JSONObject object = new JSONObject();
-		try {
-			object.put("clientID", this.clientID);
-			object.put("customIDs", customIDs);
-			
-			for (ObjectField field:ObjectField.values()){
-				object.put(field.getName(), fields.getItems(field));
-			}
-			
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		//construct headers
-		Header[] headers = constructHeaders(object);
-		
-		GeoLocalClient.post(c, "/addfields", object, headers, callback);
-	}
-	
-	public void deleteFields(Context c, JSONArray customIDs, GeoLocalAPIObjectFields fields, GeoLocalStringCallback callback){
-		// construct the parameters to send
-		JSONObject object = new JSONObject();
-		try {
-			object.put("clientID", this.clientID);
-			object.put("customIDs", customIDs);
-			
-			for (ObjectField field:ObjectField.values()){
-				if (fields.getItems(field).length()>0){
-					object.put(field.getName(), fields.getItems(field));
-				}
-			}
-			
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		//construct headers
-		Header[] headers = constructHeaders(object);
-		
-		GeoLocalClient.delete(c, "/deletefields", object, headers, callback);
-	}
-	
-	public void savePosition(Context c, String customID, JSONObject position, GeoLocalJSONArrayCallback callback){
-		// construct the parameters to send
-		JSONObject object = new JSONObject();
-		try {
-			object.put("clientID", this.clientID);
-			object.put("customID", customID);
-			object.put("position", position);
-			
-			//construct headers
-			Header[] headers = constructHeaders(object);
-			
-			GeoLocalClient.post(c, "/saveposition", object, headers, callback);
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	public void lastPosition(Context c, String customID, GeoLocalJSONObjectCallback callback){
-		// construct the parameters to send
-		JSONObject object = new JSONObject();
-		try {
-			object.put("clientID", this.clientID);
-			object.put("customID", customID);
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		//construct headers
-		Header[] headers = constructHeaders(object);
-		
-		GeoLocalClient.get(c, "/lastposition", object, headers, callback);
 	}
 	
 	public void nearbyObjects(Context c, String customID, JSONObject location, Double distance, Double offset, GeoLocalJSONArrayCallback callback){
@@ -145,32 +61,109 @@ public class GeoLocalAPI {
 	public void nearbyObjects(Context c, String customID, JSONObject location, Double distance, Double offset, GeoLocalAPIObjectFields fields, GeoLocalJSONArrayCallback callback){
 		// construct the parameters to send
 		
-				JSONObject object = new JSONObject();
-				DecimalFormat format = new DecimalFormat("###.####");
-				try {
-					object.put("clientID", this.clientID);
-					object.put("customID", customID);
-					object.put("location", location);
-					object.put("distance", format.format(distance));
-					if (offset != null){
-						object.put("offset", format.format(offset));
+		JSONObject object = new JSONObject();
+		DecimalFormat format = new DecimalFormat("###.####");
+		try {
+			JSONObject near = new JSONObject();
+			near.put("location", location);
+			near.put("distance", format.format(distance));
+			if (offset != null){
+				near.put("offset", format.format(offset));
+			}
+			object.put("near", near);
+			if (fields!=null){
+				JSONObject matching = new JSONObject();
+				for (ObjectField field:ObjectField.values()){
+					if (fields.getItems(field).length()>0){
+						matching.put(field.getName(), fields.getItems(field));
 					}
-					if (fields!=null){
-						for (ObjectField field:ObjectField.values()){
-							if (fields.getItems(field).length()>0){
-								object.put(field.getName(), fields.getItems(field));
-							}
-						}
-					}
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				}
-				
-				//construct headers
-				Header[] headers = constructHeaders(object);
-				
-				GeoLocalClient.get(c, "/nearbyobjects", object, headers, callback);
+				object.put("matching",matching);
+			}
+			
+			//construct headers
+			Header[] headers = constructHeaders(object);
+			
+			GeoLocalClient.get(c, this.clientID+"/objects/"+customID, object, headers, callback);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void addFields(Context c, JSONArray customIDs, GeoLocalAPIObjectFields fields, GeoLocalStringCallback callback){
+		// construct the parameters to send
+		JSONObject object = new JSONObject();
+		Log.w("addfields", "here");
+		String customIDsString = customIDs.toString().replaceAll("\\[", "")
+				.replaceAll("\\]", "").replaceAll("\"", "");
+		Log.w("addfields",customIDsString);
+		try {
+			for (ObjectField field:ObjectField.values()){
+				object.put(field.getName(), fields.getItems(field));
+			}
+			//construct headers
+			Header[] headers = constructHeaders(object);
+			Log.w("addfields",headers.toString());
+			GeoLocalClient.put(c, this.clientID+"/objects/"+customIDsString, object, headers, callback);
+			
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void deleteFields(Context c, JSONArray customIDs, GeoLocalAPIObjectFields fields, GeoLocalStringCallback callback){
+		// construct the parameters to send
+		JSONObject object = new JSONObject();
+		String customIDsString = customIDs.toString().replaceAll("\\[", "")
+				.replaceAll("\\]", "").replaceAll("\"", "");
+		try {
+			for (ObjectField field:ObjectField.values()){
+				if (fields.getItems(field).length()>0){
+					object.put(field.getName(), fields.getItems(field));
+				}
+			}
+			//construct headers
+			Header[] headers = constructHeaders(object);
+			
+			GeoLocalClient.delete(c, this.clientID+"/objects/"+customIDsString, object, headers, callback);
+			
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void savePosition(Context c, String customID, JSONObject position, GeoLocalJSONArrayCallback callback){
+		// construct the parameters to send
+		JSONObject object = new JSONObject();
+		try {
+			object.put("position", position);
+			
+			//construct headers
+			Header[] headers = constructHeaders(object);
+			
+			GeoLocalClient.post(c, this.clientID+"/positions/"+customID, object, headers, callback);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void lastPosition(Context c, String customID, GeoLocalJSONObjectCallback callback){
+		// construct the parameters to send
+		JSONObject object = new JSONObject();
+		try {
+			object.put("last","true");
+			//construct headers
+			Header[] headers = constructHeaders(object);
+			
+			GeoLocalClient.get(c, this.clientID+"/positions/"+customID, object, headers, callback);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
 	}
 	
 	public void objectPath(Context c, String customID, Double start, Double end, GeoLocalJSONArrayCallback callback){
@@ -178,23 +171,21 @@ public class GeoLocalAPI {
 		JSONObject object = new JSONObject();
 		DecimalFormat format = new DecimalFormat("###.####");
 		try {
-			object.put("clientID", this.clientID);
-			object.put("customID", customID);
 			if (start != null){
 				object.put("start", format.format(start));
 			}
 			if (end != null){
 				object.put("end", format.format(end));
-			}
+			}		
+			
+			//construct headers
+			Header[] headers = constructHeaders(object);
+			
+			GeoLocalClient.get(c, this.clientID+"/positions/"+customID, object, headers, callback);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		//construct headers
-		Header[] headers = constructHeaders(object);
-		
-		GeoLocalClient.get(c, "/objectpath", object, headers, callback);
 	}
 	
 	public void objectPath(Context c, String customID, GeoLocalJSONArrayCallback callback){
@@ -205,53 +196,38 @@ public class GeoLocalAPI {
 		// construct the parameters to send
 		JSONObject object = new JSONObject();
 		try {
-			object.put("clientID", this.clientID);
-			object.put("geofenceID", geofenceID);
 			object.put("lat", lat);
 			object.put("lng", lng);
 			object.put("distance", distance);
+			
+			//construct headers
+			Header[] headers = constructHeaders(object);
+			
+			GeoLocalClient.post(c, this.clientID+"/geofences/"+geofenceID, object, headers, callback);	
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		//construct headers
-		Header[] headers = constructHeaders(object);
-		
-		GeoLocalClient.post(c, "/geofence", object, headers, callback);	
 	}
 	
 	public void listGeofences(Context c, GeoLocalJSONArrayCallback callback){
 		// construct the parameters to send
 		JSONObject object = new JSONObject();
-		try {
-			object.put("clientID", this.clientID);
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
 		//construct headers
 		Header[] headers = constructHeaders(object);
 		
-		GeoLocalClient.get(c, "/geofence", object, headers, callback);		
+		GeoLocalClient.get(c, this.clientID+"/geofences", object, headers, callback);		
 	}
 	
-	public void deleteGeofence(Context c, String geofenceID, GeoLocalJSONObjectCallback callback){
+	public void deleteGeofence(Context c, String geofenceID, GeoLocalStringCallback callback){
 		// construct the parameters to send
 		JSONObject object = new JSONObject();
-		try {
-			object.put("clientID", this.clientID);
-			object.put("geofenceID", geofenceID);
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
 		//construct headers
 		Header[] headers = constructHeaders(object);
 		
-		GeoLocalClient.delete(c, "/geofence", object, headers, callback);	
+		GeoLocalClient.delete(c, this.clientID+"/geofences/"+geofenceID, object, headers, callback);	
 	}
 	
 	private Header[] constructHeaders (JSONObject object){
@@ -271,11 +247,14 @@ public class GeoLocalAPI {
 		return headers;
 	}
 	
-	public JSONObject constructPosition(JSONObject location, Double time, Double speed, Double altitude, Double bearing) throws JSONException{
+	public JSONObject constructPosition(JSONObject location, Double time, Double accuracy, Double speed, Double altitude, Double bearing) throws JSONException{
 		
 		JSONObject position = new JSONObject();
 		position.put("location", location);
 		position.put("time", time);
+		if (accuracy != null){
+			position.put("accuracy", accuracy);
+		}
 		if (speed != null){
 			position.put("speed", speed);
 		}
@@ -289,7 +268,7 @@ public class GeoLocalAPI {
 	}
 	
 	public JSONObject constructPosition(JSONObject location, Double time) throws JSONException{
-		return constructPosition(location, time, null, null, null);
+		return constructPosition(location, time, null, null, null, null);
 	}
 	
 	public JSONObject constructLocation(Double lat, Double lng) throws JSONException{
@@ -310,6 +289,18 @@ public class GeoLocalAPI {
 		}
 		location.put("coordinates", coordinates);
 		return location;
+	}
+	
+	public JSONObject constructPosition(Location location) throws JSONException{
+		return constructPosition(constructLocation(location), Double.parseDouble(((Long)(location.getTime()/1000L)).toString()),
+				Double.parseDouble(((Float)location.getAccuracy()).toString()),
+				Double.parseDouble(((Float)location.getSpeed()).toString()), 
+				(Double)location.getAltitude(), 
+				Double.parseDouble(((Float)location.getBearing()).toString()));
+	}
+	
+	public JSONObject constructLocation(Location location) throws JSONException{
+		return constructLocation(location.getLatitude(),location.getLongitude());
 	}
 }
 

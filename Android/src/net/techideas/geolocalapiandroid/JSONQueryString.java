@@ -96,8 +96,9 @@ public class JSONQueryString {
 		}
 		
 		stack.pop();
-		
-		string.delete(string.lastIndexOf(sep),string.length());
+		if (string.length()>0){
+			string.delete(string.lastIndexOf(sep),string.length());
+		}
 		if (string.toString()=="" && name!=null) return name + "=";
 		return string.toString();
 	}
