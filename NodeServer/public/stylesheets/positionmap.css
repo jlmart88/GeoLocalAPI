@@ -22,15 +22,21 @@ h3 {
 
 #queryDiv {
 	float:left; 
-	height:80%; 
-	width:20%; 
-	max-width:20%; 
-	display:inline-block; 
-	margin:0px;
+	height:75%; 
+	width:19%; 
+	max-width:18%; 
+	display:table-column;
+	margin:0% 1% 1%;
+	padding-bottom: 29%;
 
 } 
-input {
-	resize:horizontal;
+fieldset {
+	display:table-cell;
+	margin:auto;
+}
+
+input[type='text']{
+	width:95%;
 }
 input, button {
 	font-size: 16px;

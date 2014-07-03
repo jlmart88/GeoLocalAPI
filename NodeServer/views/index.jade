@@ -24,6 +24,35 @@ block content
                 |  <span id='addObjectResponse'></span>
         // /ADD OBJECT
 
+        // GET OBJECTS
+        h2 Get Objects
+        #getObjects
+            fieldset
+                input#inputClientID(type='text', placeholder='clientID')
+                input#inputCustomID(type='text', placeholder='customID')
+                br
+                br
+                strong Near:
+                br
+                input#inputLocation(type='text', value='{"type":"Point", "coordinates":["2.168", "41.387"]}', placeholder='{"type":"Point", "coordinates":["2.168", "41.387"]}')
+                input#inputDistance(type='text', placeholder='distance')
+                br
+                input#inputOffset(type='text', placeholder='offset')
+                br
+                br
+                strong Matching:
+                br
+                input#inputCategories(type='text', placeholder='category1,category2,...')
+                input#inputTags(type='text', placeholder='tag1,tag2,...')
+                br
+                input#inputRelated(type='text', placeholder='relatedID1,relatedID2,...')
+                br
+                button#btnGetObjects Get Objects
+                br
+                strong Response:
+                |  <span id='getObjectsResponse'></span>
+        // /GET OBJECTS
+
         // ADD FIELDS
         h2 Add Fields
         #addFields
@@ -88,28 +117,6 @@ block content
                 |  <span id='lastPositionResponse'></span>
 
         // /LAST POSITION
-
-        // NEARBY OBJECTS
-        h2 Nearby Objects
-        #nearbyObjects
-            fieldset
-                input#inputClientID(type='text', placeholder='clientID')
-                input#inputCustomID(type='text', placeholder='customID')
-                br
-                input#inputLocation(type='text', value='{"type":"Point", "coordinates":["2.168", "41.387"]}', placeholder='{"type":"Point", "coordinates":["2.168", "41.387"]}')
-                input#inputDistance(type='text', placeholder='distance')
-                br
-                input#inputOffset(type='text', placeholder='offset')
-                input#inputCategories(type='text', placeholder='category1,category2,...')
-                br
-                input#inputTags(type='text', placeholder='tag1,tag2,...')
-                input#inputRelated(type='text', placeholder='relatedID1,relatedID2,...')
-                br
-                button#btnNearbyObjects Nearby Objects
-                br
-                strong Response:
-                |  <span id='nearbyObjectsResponse'></span>
-        // /NEARBY OBJECTS
 
         // OBJECT PATH
         h2 Object Path

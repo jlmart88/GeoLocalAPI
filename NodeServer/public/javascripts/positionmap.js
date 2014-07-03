@@ -7,7 +7,7 @@ $(document).ready(function() {
     var drawingCounter = 0;
     var $drawingLists = $('.drawingList');
     var $objectList = $('#objectList');
-    var $nearbyObjectList = $('#nearbyObjectList');
+    var $getObjectList = $('#getObjectList');
     var $geofenceList = $('#geofenceList');
     var defaultMapOptions ={
             center: new google.maps.LatLng(41.387, 2.168),
@@ -53,7 +53,7 @@ $(document).ready(function() {
     $('#btnListGeofences').on('click', listGeofences);
 
     // Nearby Objects button click
-    $('#btnNearbyObjects').on('click', nearbyObjects);
+    $('#btnGetObjects').on('click', getObjects);
 
     //Fade in/out the red X to delete the object
     $drawingLists.delegate('li', 'mouseover mouseout', function(event) {
@@ -92,31 +92,19 @@ $(document).ready(function() {
     // Functions =============================================================
 
     function objectPath(event) {
-        event.preventDefault();
+    event.preventDefault();
 
-        // Super basic validation - increase errorCount variable if any fields are blank
-        var errorCount = 0;
-        $('#objectPath input').each(function(index, val) {
-            if($(this).val() === '') { 
-                // Allow start and end to be empty
-                if($(this).context.id != 'inputStart' && $(this).context.id != 'inputEnd') {
-                    errorCount++; 
-                }
-            }
-        });
+    var newObject = {
+        'start': $('#objectPath fieldset input#inputStart').val(),
+        'end': $('#objectPath fieldset input#inputEnd').val()
+    };
 
-        // Check and make sure errorCount's still at zero
-        if(errorCount === 0) {
+    var clientID = $('#objectPath fieldset input#inputClientID').val();
+    var customID = $('#objectPath fieldset input#inputCustomID').val();
+    var clientSecret = $('#clientSecret fieldset input#inputClientSecret').val();
 
-            var newObject = {
-                'clientID': $('#objectPath fieldset input#inputClientID').val(),
-                'customID': $('#objectPath fieldset input#inputCustomID').val(),
-                'start': $('#objectPath fieldset input#inputStart').val(),
-                'end': $('#objectPath fieldset input#inputEnd').val()
-            };
-            var clientSecret = $('#clientSecret fieldset input#inputClientSecret').val();
-            // Use AJAX to post the object to our service
-            $.ajax(createRequest('GET','/geo/objectPath',newObject,clientSecret)).done(function( response ) {
+    // Use AJAX to post the object to our service
+    $.ajax(createRequest('GET','/geo/'+clientID+'/positions/'+customID,newObject,clientSecret)).done(function( response ) {
 
                     //Draw the path on the map as Markers and a Polyline
                     if (response.error == 0){
@@ -173,34 +161,53 @@ $(document).ready(function() {
                         alert(JSON.stringify(response));
                     }
             });
-        }
-        else {
-            // If errorCount is more than 0, error out
-            alert('Please fill in all fields');
-            return false;
-        }
     };
 
     // Find nearby objects
-    function nearbyObjects(event) {
+    function getObjects(event) {
         event.preventDefault();
 
         var newObject = {
-            'clientID': $('#nearbyObjects fieldset input#inputClientID').val(),
-            'customID': $('#nearbyObjects fieldset input#inputCustomID').val(),
-            'location': JSON.parse($('#nearbyObjects fieldset input#inputLocation').val()),
-            'distance': $('#nearbyObjects fieldset input#inputDistance').val(),
-            'offset' : $('#nearbyObjects fieldset input#inputOffset').val(),
-            'fields' : $('#nearbyObjects fieldset input#inputFields').val().split(",")
+            'near':{
+                'location': $('#getObjects fieldset input#inputLocation').val() ? JSON.parse($('#getObjects fieldset input#inputLocation').val()) : '',
+                'distance': $('#getObjects fieldset input#inputDistance').val(),
+                'offset' : $('#getObjects fieldset input#inputOffset').val()
+            },
+            'matching':{
+                'categories': $('#getObjects fieldset input#inputCategories').val().split(","),
+                'tags': $('#getObjects fieldset input#inputTags').val().split(","),
+                'related': $('#getObjects fieldset input#inputRelated').val().split(",")
+            }
         };
-
-        if (/^\s*$/.test(newObject['fields'])){
-            delete newObject['fields'];
+        var fields = ['tags','related','categories'];
+        for (field in fields){
+            if (/^\s*$/.test(newObject.matching[fields[field]])){
+                delete newObject.matching[fields[field]];
+            }
+        }
+        var fields = ['location','distance','offset'];
+        for (field in fields){
+            if (/^\s*$/.test(newObject.near[fields[field]])){
+                delete newObject.near[fields[field]];
+            }
+        }
+        var deleteKey = true;
+        for (key in newObject){
+            for (var property in newObject[key]) {
+                if (hasOwnProperty.call(newObject[key], property)) deleteKey = false;
+            }
+            if (deleteKey){
+                delete newObject[key];
+            }
+            deleteKey = true;
         }
 
+        var clientID = $('#getObjects fieldset input#inputClientID').val();
+        var customID = $('#getObjects fieldset input#inputCustomID').val();
         var clientSecret = $('#clientSecret fieldset input#inputClientSecret').val();
+        
         // Use AJAX to post the object to our service
-        $.ajax(createRequest('GET','/geo/nearbyObjects',newObject,clientSecret)).done(function( response ) {
+        $.ajax(createRequest('GET','/geo/'+clientID+'/objects/'+customID,newObject,clientSecret)).done(function( response ) {
 
             //Draw the path on the map as Markers and a Polyline
                 if (response.error == 0){
@@ -235,8 +242,8 @@ $(document).ready(function() {
                     }
 
                     //add the main object to the group in a different color
-                    var lat = newObject.location.coordinates[1];
-                    var lng = newObject.location.coordinates[0];
+                    var lat = newObject.near.location.coordinates[1];
+                    var lng = newObject.near.location.coordinates[0];
                     var latLng = new google.maps.LatLng(lat,lng);
 
                     //Extend our map view to include this new location
@@ -245,7 +252,7 @@ $(document).ready(function() {
                         extended = true;
                     }
 
-                    var title = "customID: " + $('#nearbyObjects fieldset input#inputCustomID').val();
+                    var title = "customID: " + $('#getObjects fieldset input#inputCustomID').val();
                     var icon = "http://www.google.com/intl/en_us/mapfiles/ms/micons/green-dot.png";
 
                     var marker = createMarker(latLng, title, icon);
@@ -255,7 +262,7 @@ $(document).ready(function() {
 
                     markerArray.push(marker);
 
-                    addDrawingItem($nearbyObjectList,$('#nearbyObjects fieldset input#inputCustomID').val(),markerArray);
+                    addDrawingItem($getObjectList,$('#getObjects fieldset input#inputCustomID').val(),markerArray);
 
                     //Set the bounds of the map view depending on whether we have a path or a single point
                     if (response.response.length>0){
@@ -275,22 +282,14 @@ $(document).ready(function() {
     function listGeofences(event) {
         event.preventDefault();
 
-        // Super basic validation - increase errorCount variable if any fields are blank
-        var errorCount = 0;
-        $('#listGeofences input').each(function(index, val) {
-            if($(this).val() === '') { errorCount++; }
-        });
+        var newObject = {
+        };
 
-        // Check and make sure errorCount's still at zero
-        if(errorCount === 0) {
+        var clientID = $('#listGeofences fieldset input#inputClientID').val();
+        var clientSecret = $('#clientSecret fieldset input#inputClientSecret').val();
 
-            var newObject = {
-                'clientID': $('#listGeofences fieldset input#inputClientID').val()
-            };
-
-            var clientSecret = $('#clientSecret fieldset input#inputClientSecret').val();
-            // Use AJAX to post the object to our service
-            $.ajax(createRequest('GET','/geo/geofence',newObject)).done(function( response ) {
+        // Use AJAX to post the object to our service
+        $.ajax(createRequest('GET','/geo/'+clientID+'/geofences',newObject,clientSecret)).done(function( response ) {
 
                 //Draw the geofences on the map as Polygons
 
@@ -331,12 +330,6 @@ $(document).ready(function() {
                     alert(JSON.stringify(response));
                 }
             });
-        }
-        else {
-            // If errorCount is more than 0, error out
-            alert('Please fill in all fields');
-            return false;
-        }
     };
 
     function addDrawingItem($list,name,mapContents){

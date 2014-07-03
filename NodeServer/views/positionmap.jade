@@ -32,24 +32,32 @@ html
                     ul#objectList(class='drawingList')
 
             // /OBJECT PATH
-            // NEARBY OBJECTS
-            h3(align='center') Nearby Objects
-            #nearbyObjects
+            // GET OBJECTS
+            h2 Get Objects
+            #getObjects
                 fieldset
                     input#inputClientID(type='text', placeholder='clientID')
                     input#inputCustomID(type='text', placeholder='customID')
+                    br
+                    br
+                    strong Near:
                     br
                     input#inputLocation(type='text', value='{"type":"Point", "coordinates":["2.168", "41.387"]}', placeholder='{"type":"Point", "coordinates":["2.168", "41.387"]}')
                     input#inputDistance(type='text', placeholder='distance')
                     br
                     input#inputOffset(type='text', placeholder='offset')
-                    input#inputFields(type='text', placeholder='field1,field2,...')
                     br
-                    button#btnNearbyObjects Nearby Objects
                     br
-                    ul#nearbyObjectList(class='drawingList')
-
-            // /NEARBY OBJECTS
+                    strong Matching:
+                    br
+                    input#inputCategories(type='text', placeholder='category1,category2,...')
+                    input#inputTags(type='text', placeholder='tag1,tag2,...')
+                    br
+                    input#inputRelated(type='text', placeholder='relatedID1,relatedID2,...')
+                    br
+                    button#btnGetObjects(class='submitButton') Get Objects
+                    ul#getObjectList(class='drawingList')
+            // /GET OBJECTS
             // LIST GEOFENCES
             h3(align='center') Geofences
             #listGeofences

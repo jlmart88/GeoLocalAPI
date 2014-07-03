@@ -40,18 +40,21 @@ app.use(function(req,res,next){
 app.use('/', routes);
 
 //verify the signature if it is a geo request
-app.use(function(req,res,next){
-    if (req.path.lastIndexOf('/geo/') == 0){
-        verifySignature(req,function(err,verify){
-            if (verify){
-                next();
-            } else unauthorizedErrorHandler(res,err);
-        });
-    } else next();
+app.use('/geo/:clientID',function(req,res,next){
+    console.log('here');
+    verifySignature(req,function(err,verify){
+        if (verify){
+            next();
+        } else unauthorizedErrorHandler(res,err);
+    });
 });
 
-app.use('/geo', geo);
+app.param('clientID', function(req, res, next, clientID){
+    req.clientID = clientID;
+    next();
+});
 
+app.use('/geo/:clientID',geo);
 
 /// catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -89,8 +92,8 @@ app.use(function(err, req, res, next) {
 function verifySignature(req, callback){
     var db = req.db;
     var body;
-    //console.log(req); 
-    if (req.method == 'POST'){
+    console.log(req); 
+    if (req.method == 'POST' || req.method == 'PUT'){
         body = req.body;
     } else body = req.query;
 
@@ -108,7 +111,7 @@ function verifySignature(req, callback){
         callback("Missing/Invalid Headers: "+missing,false);
     }
     else {
-        db.collection('clientidlist').findOne({'clientID':body.clientID}, function(err, result){
+        db.collection('clientidlist').findOne({'clientID':req.params.clientID}, function(err, result){
             if (err!=null){
                 callback(err,false);
             }
