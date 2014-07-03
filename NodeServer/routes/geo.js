@@ -737,7 +737,7 @@ function nearbyObjectsQuery(req,res,objects){
                 console.log(positions);
                 for (position in positions.results){
                     if (req.body.customIDs){
-                        if (req.body.customIDs.indexOf(positions.results[position].customID)>-1){
+                        if (req.body.customIDs.indexOf(positions.results[position].obj.customID)>-1){
                             delete positions.results[position];
                         } 
                     }
