@@ -10,10 +10,12 @@ var querystring = require('../node_modules/querystring/querystring');
 router.post('/objects/:customIDs', function(req, res) {
     var db = req.db;
 
+    //place these values in req.body to perform string sanitizing
     req.body.clientID = req.clientID;
     req.body.customIDs = req.params.customIDs.split(",");
     checkParameters(req.body,res);
 
+    //construct each object document by iterating through the params in req.body
     var objects = [];
     for (customID in req.body.customIDs){
         var object = {};
@@ -26,7 +28,7 @@ router.post('/objects/:customIDs', function(req, res) {
         objects.push(object);
     }
 
-    console.log(req);
+    //ensure the unique indexing in the object list before inserting
     db.collection('objectlist').ensureIndex(
         {'clientID':1, 'customID':1}, 
         {unique:true}, 
@@ -36,8 +38,8 @@ router.post('/objects/:customIDs', function(req, res) {
             }
         }
     );
+    
     //Insert the objects into the object list
-
     db.collection('objectlist').insert(objects,{'continueOnError':true}, function(err, result){
         databaseResultHandler(res,err,result);
     });
@@ -49,20 +51,12 @@ router.post('/objects/:customIDs', function(req, res) {
 router.put('/objects/:customIDs', function(req, res) {
     var db = req.db;
 
+    //place these values in req.body to perform string sanitizing
     req.body.clientID = req.clientID;
     req.body.customIDs = req.params.customIDs.split(",");
     checkParameters(req.body,res);
 
-    db.collection('objectlist').ensureIndex(
-        {'clientID':1, 'customID':1}, 
-        {unique:true}, 
-        function(err,result){
-            if (err != null) {
-                callbackErrorHandler(err);
-            }
-        }
-    );
-
+    //construct the update query
     var update = {};
     var fields = ['tags','related','categories'];
     for (field in fields){
@@ -71,12 +65,12 @@ router.put('/objects/:customIDs', function(req, res) {
         }
     }
 
-    //Insert the object into the object lis
+    //Update the objects in the object list
     db.collection('objectlist').update({"clientID":req.body.clientID,"customID":{'$in':req.body.customIDs}},
         {'$addToSet':update}, 
         {'multi':true},
         function(err, result){
-        databaseResultHandler(res,err,result);
+            databaseResultHandler(res,err,result);
     });
 });
 
@@ -86,13 +80,18 @@ router.put('/objects/:customIDs', function(req, res) {
  */
 router.get('/objects/:customIDs?', function(req, res) {
     var db = req.db;
-    //console.log(req);
 
+    //place these values in req.body to perform string sanitizing
     req.body.clientID = req.clientID;
     if (req.params.customIDs){
         req.body.customIDs = req.params.customIDs.split(",");
     }
+    checkParameters(req.body,res);
+    checkParameters(req.query,res);
+
+    //check if we have filters to use for our objects
     if (req.query.matching || req.query.near){
+        //construct the inital query to the object list
         var query = {'clientID':req.body.clientID};
         if (req.query.matching){
             var fields = ['tags','related','categories'];
@@ -102,14 +101,17 @@ router.get('/objects/:customIDs?', function(req, res) {
                 }
             }
         }
+        //get the objects information
         db.collection('objectlist').find(query).toArray(function(err, objects) {
             if (err!=null){
                 databaseResultHandler(res,err,objects);
             }
             else if (objects!=null){
+                //if we have a near parameter, get the position information for the nearby objects
                 if (req.query.near){
                     nearbyObjectsQuery(req,res,objects);
                 }
+                //otherwise just return the object information
                 else databaseResultHandler(res,err,objects);
             }
             else {
@@ -117,6 +119,7 @@ router.get('/objects/:customIDs?', function(req, res) {
             }   
         });
     }
+    //if there's no filters, then just return object information
     else {
         var query = {'clientID':req.body.clientID};
         if (req.params.customIDs){
@@ -142,23 +145,27 @@ router.get('/objects/:customIDs?', function(req, res) {
  */
 router.delete('/objects/:customIDs', function(req, res) {
     var db = req.db;
-
+    //sanitize the parameters before adding the customIDs
     checkParameters(req.query,res);
 
+    //check to see if our query is empty, so we know whether to delete the objects
     var deleteObject = true;
     for (var key in req.query) {
         if (hasOwnProperty.call(req.query, key)) deleteObject = false;
     }
 
+    //add these parameters to the query and resanitize
     req.query.clientID = req.clientID;
     req.query.customIDs = req.params.customIDs.split(",");
     checkParameters(req.query,res);
 
+    //if our query was empty, delete the given objects
     if (deleteObject){
         db.collection('objectlist').remove({"clientID":req.query.clientID,"customID":{'$in':req.query.customIDs}}, function(err, result){
             databaseResultHandler(res,err,result);
         })
     } 
+    //otherwise, just remove the field values
     else {
         var update = {};
         var fields = ['tags','related','categories'];
@@ -168,7 +175,6 @@ router.delete('/objects/:customIDs', function(req, res) {
             }
         }
 
-        //Insert the object into the object lis
         db.collection('objectlist').update({"clientID":req.query.clientID,"customID":{'$in':req.query.customIDs}},
             {'$pullAll':update}, 
             {'multi':true},
@@ -184,13 +190,13 @@ router.delete('/objects/:customIDs', function(req, res) {
 router.post('/positions/:customID', function(req, res) {
     var db = req.db;
 
+    //Check and sanitize the parameters
     req.body.clientID = req.clientID;
     req.body.customID = req.params.customID;
-
     var params = [['position','location','type'], ['position','location','coordinates'], ['position','time']];
     if (!checkParameters(req.body, res, params)) return;
 
-    //Insert the location into the last position list first
+    //Ensure the unique index in last position list
     db.collection('lastpositionlist').ensureIndex(
         {'clientID':1, 'customID':1}, 
         {unique:true}, 
@@ -201,13 +207,14 @@ router.post('/positions/:customID', function(req, res) {
         }
     );
 
-    //Create a 2dsphere index in the last position list to allow for geoNear query
+    //Ensure the 2dsphere index in the last position list to allow for geoNear query
     db.collection('lastpositionlist').ensureIndex({'position.location':'2dsphere'}, function(err,result){
         if (err!=null){
             callbackErrorHandler(err);
         }
     });
 
+    //Insert the location into the last position list first to see if it is newer
     db.collection('lastpositionlist').update(
                 {'clientID':req.body.clientID, 'customID':req.body.customID, 'position.time': {$lt:req.body.position.time}},
                 {'$set':req.body},
@@ -216,25 +223,20 @@ router.post('/positions/:customID', function(req, res) {
             if (err!=null){
                 databaseResultHandler(res,err,result);
             }
+            //If the position went in successfully, then log it to the position list
             else if (result != null){
-                // var clientID = result[0].clientID;
-                // var customID = result[0].customID;
 
-                // var time = result[0].position.time;
-                // delete result[0]._id;
-
-                //Attempt the save position callback after the position was saved succesfully
-                makeCallback(req,'savePosition');
-
-                
-                //Insert the location into the position list last
+                //Insert the location into the position list
                 db.collection('positionlist').insert(req.body, function(err, result){
                     if (err != null) {
                         databaseResultHandler(res,err,result);
                     } else {
                         databaseResultHandler(res,err,result);
-                        //Attempt the geofence callback after we know the last position update was successful
+                        //Attempt the geofence callback after we know the position update was successful
                         makeCallback(req,'geofence');
+
+                        //Attempt the save position callback after we know the position update was successful
+                        makeCallback(req,'savePosition');
                     }
                 });
             }
@@ -249,20 +251,22 @@ router.post('/positions/:customID', function(req, res) {
 router.get('/positions/:customID', function(req, res) {
     var db = req.db;
 
+    //Sanitize the parameters
     req.query.clientID = req.clientID;
     req.query.customID = req.params.customID;
     var last = req.query.last;
     delete req.query.last;
     checkParameters(req.query, res);
 
+    //If we only want the most recent position
     if (last){
-        //First query the object collection
+        //First query the object list for the object information
         db.collection('objectlist').findOne(req.query, function (err, object) {
             if (err!=null){
                 databaseResultHandler(res,err,object);
             }
             else if (object != null){
-                //Then query the position collection, sorting by the timestamp
+                //Then query the last position list
                 db.collection('lastpositionlist').findOne(req.query, function(err, position){
                     if (err!=null){
                         databaseResultHandler(res,err,position);
@@ -280,6 +284,7 @@ router.get('/positions/:customID', function(req, res) {
             else databaseResultHandler(res,"No object data for object with customID: "+req.query.customID,"");
         });
     }
+    //Otherwise get the list of positions for the object given the parameters
     else {
         var start;
         var end;
@@ -299,7 +304,7 @@ router.get('/positions/:customID', function(req, res) {
         var time = 'position.time'
         req.query[time] = {"$gte":start, "$lte":end};
 
-        //Query the position collection
+        //Query the position collection, sorting by timestamp
         db.collection('positionlist').find(req.query).sort({'position.time':1}).toArray(function (err, items) {
             if (err != null){
                 databaseResultHandler(res,err,items);
@@ -321,6 +326,7 @@ router.get('/positions/:customID', function(req, res) {
 router.post('/geofences/:geofenceID', function(req, res) {
     var db = req.db;
 
+    //Check and sanitize the parameters
     req.body.clientID = req.clientID;
     req.body.geofenceID = req.params.geofenceID;
     var params = ['lng','lat','distance'];
@@ -362,7 +368,7 @@ router.post('/geofences/:geofenceID', function(req, res) {
 
     var boundingBox=[[lngMin,latMin],[lngMin,latMax],[lngMax,latMax],[lngMax,latMin],[lngMin,latMin]];
     
-    var object = {
+    var geofence = {
         clientID:req.body.clientID,
         geofenceID:req.body.geofenceID,
         location:{
@@ -375,6 +381,7 @@ router.post('/geofences/:geofenceID', function(req, res) {
         }
     };
 
+    //Ensure there is a unique index in the geofence list
     db.collection('geofencelist').ensureIndex(
         {'clientID':1, 'geofenceID':1}, 
         {unique:true}, 
@@ -392,8 +399,8 @@ router.post('/geofences/:geofenceID', function(req, res) {
         }
     });
 
-    //Insert the object into the object list
-    db.collection('geofencelist').insert(object, function(err, result){
+    //Insert the geofence into the geofence list
+    db.collection('geofencelist').insert(geofence, function(err, result){
         databaseResultHandler(res,err,result);
     });
 });
@@ -404,11 +411,12 @@ router.post('/geofences/:geofenceID', function(req, res) {
 router.get('/geofences', function(req, res) {
     var db = req.db;
 
+    //Sanitize the parameters
     req.query.clientID = req.clientID;
     checkParameters(req.query, res);
 
 
-    //First query the geofence collection
+    //Query the geofence collection
     db.collection('geofencelist').find(req.query).toArray(function (err, geofences) {
         if (err!=null){
             databaseResultHandler(res,err,geofences);
@@ -429,11 +437,12 @@ router.get('/geofences', function(req, res) {
 router.delete('/geofences/:geofenceIDs', function(req, res) {
     var db = req.db;
 
+    //Sanitize the parameters
     req.query.clientID = req.clientID;
     req.query.geofenceIDs = req.params.geofenceIDs.split(",");
     checkParameters(req.query, res);
 
-    //First query the object collection
+    //Delete the geofences from the list
     db.collection('geofencelist').remove({"clientID":req.query.clientID,"geofenceID":{'$in':req.query.geofenceIDs}}, function (err, geofences) {
         if (err!=null || geofences!=null){
             databaseResultHandler(res,err,geofences);
@@ -442,9 +451,10 @@ router.delete('/geofences/:geofenceIDs', function(req, res) {
     });
 });
 
-//This function will make the geofence callback if it is included in the client callback list
-//This keeps track of what objects are in what geofences by modifying the "geofence" parameter
-//  of the object in the object list
+/* This function will make the geofence callback if it is included in the client callback list
+*  This keeps track of what objects are in what geofences by modifying the "geofence" parameter
+*  of the object in the object list
+*/
 function geofenceCallback(req,host,path){
 
     var db = req.db;
@@ -542,6 +552,8 @@ function geofenceCallback(req,host,path){
     });
 }
 
+/* This function will mirror the save position posts if it is included in the client callback list
+*/
 function savePositionCallback(req, host, path){
     var db = req.db;
     var body;
@@ -591,11 +603,13 @@ function databaseResultHandler(res,err,result){
     );
 }
 
+// Handle the result of a callback error
 function callbackErrorHandler(err){
     console.log('Error in callback: ');
     console.log(err);
 }
 
+//Create and send the request for a callback
 function sendRequest(host,path,body){
     var options = {
         host: host,
@@ -624,6 +638,7 @@ function sendRequest(host,path,body){
     request.end();
 }
 
+//Sanitize the parameters and make sure the given params and included
 function checkParameters(body,res,params){
     sanitizeStrings(body);
     sanitizeArrays(body);
@@ -695,6 +710,7 @@ function nearbyObjectsQuery(req,res,objects){
     if (!req.query.near.offset){
         offset = 24*60*60; //set default offset to 24 hours if not given
     } else offset = parseFloat(req.query.near.offset);
+    
     var epoch = (new Date).getTime() / 1000;
     var locQuery = {'clientID':req.clientID, 'position.time': {'$gte':epoch-offset}};
     var objectFields = {};
@@ -714,13 +730,6 @@ function nearbyObjectsQuery(req,res,objects){
     }
     console.log(locQuery);
 
-    //Create a 2dsphere index in the last position list to allow for geoNear query
-    db.collection('lastpositionlist').ensureIndex({'position.location':'2dsphere'}, function(err,result){
-        if (err!=null){
-            callbackErrorHandler(err);
-        }
-    });
-
     req.query.near.location.coordinates = [parseFloat(req.query.near.location.coordinates[0]),parseFloat(req.query.near.location.coordinates[1])];
 
     //Run the geoNear command
@@ -736,6 +745,7 @@ function nearbyObjectsQuery(req,res,objects){
             else if (positions != null){
                 console.log(positions);
                 for (position in positions.results){
+                    //clean up the results to return
                     if (req.body.customIDs){
                         if (req.body.customIDs.indexOf(positions.results[position].obj.customID)>-1){
                             delete positions.results[position];

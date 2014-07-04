@@ -49,6 +49,7 @@ app.use('/geo/:clientID',function(req,res,next){
     });
 });
 
+//store the clientID in the request for later use
 app.param('clientID', function(req, res, next, clientID){
     req.clientID = clientID;
     next();
@@ -92,7 +93,7 @@ app.use(function(err, req, res, next) {
 function verifySignature(req, callback){
     var db = req.db;
     var body;
-    console.log(req); 
+    // console.log(req); 
     if (req.method == 'POST' || req.method == 'PUT'){
         body = req.body;
     } else body = req.query;
@@ -145,27 +146,6 @@ function verifySignature(req, callback){
             }
         });
     }
-}
-
-function checkHeaders(body,res){
-
-    // validate that the proper headers exist
-    var missing = [];
-    params = ['x-signature', 'x-authentication-type', 'x-timestamp'];
-    for (param in params){
-        data = body[params[param]];
-        if (data == '' || data == null){
-            missing.push(("'"+params[param].toString()+"'").replace(/,/g,":"));
-        }
-    }
-
-    var err;
-    if (missing.length > 0){
-        err = "Missing/Invalid Headers: "+missing;
-        res.send({error:2,cause:err});
-        return false;
-    }
-    return true;
 }
 
 // Send an unauthroized request error to the client
