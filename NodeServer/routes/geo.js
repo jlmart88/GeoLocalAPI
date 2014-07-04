@@ -493,53 +493,65 @@ function geofenceCallback(req,host,path){
                         callbackErrorHandler(err);
                     }
                     if (results!=null){
-                        // Sort the geofences into entered, exited, and stillIn
-                        var entered = [];
-                        var exited = [];
-                        var stillIn = [];
+
+                        // This will keep track of what geofences the object is currently in, and choose whether to send the callback
+
+                        // // Sort the geofences into entered, exited, and stillIn
+                        // var entered = [];
+                        // var exited = [];
+                        // var stillIn = [];
+
+                        // var resultsGeofences = results.map(function(item,index,array){
+                        //     return item.geofenceID;
+                        // });
+
+                        // for (geofence in previousGeofences){
+                        //     if (resultsGeofences.indexOf(previousGeofences[geofence]) > -1){
+                        //         stillIn.push(previousGeofences[geofence]);
+                        //     } else {
+                        //         exited.push(previousGeofences[geofence]);
+                        //     }
+                        // }
+                        // for (geofence in resultsGeofences){
+                        //     console.log(previousGeofences.indexOf(resultsGeofences[geofence]))
+                        //     if (previousGeofences.indexOf(resultsGeofences[geofence])> -1){ 
+                        //     } else {
+                        //         entered.push(resultsGeofences[geofence]);
+                        //     }
+                        // }
+
+                        // //Update the object list with the stillIn+entered geofences
+                        // db.collection('objectlist').update(
+                        //     {'clientID':body.clientID, 'customID':body.customID},
+                        //     {$set:{'geofences':stillIn.concat(entered)}},
+                        //     function(err,result){
+                        //         if (err != null) {
+                        //             callbackErrorHandler(err);
+                        //         } else{
+                        //             //Only send callback if there is meaningful data
+                        //             if (entered.length + exited.length > 0){
+                        //                 console.log("Sending geofence callback");
+                        //                 //Send the geofence callback request with the entered and exited geofence information
+                        //                 var reqBody = {'customID':body.customID,'entered':entered,'exited':exited};
+         
+                        //                 sendRequest(host,path,reqBody);
+                        //             }
+                        //             else {
+                        //                 console.log("Not sending geofence callback; no meaningful data to send");
+                        //             }
+                        //         }
+                        //     }
+                        // );
+
+
+                        // This will always send the geofence callback for objects, even if they have been in the geofence for a long time
 
                         var resultsGeofences = results.map(function(item,index,array){
                             return item.geofenceID;
                         });
+                        var reqBody = {'customID':body.customID,'entered':resultsGeofences};
+                        sendRequest(host,path,reqBody);
 
-                        for (geofence in previousGeofences){
-                            if (resultsGeofences.indexOf(previousGeofences[geofence]) > -1){
-                                stillIn.push(previousGeofences[geofence]);
-                            } else {
-                                exited.push(previousGeofences[geofence]);
-                            }
-                        }
-                        for (geofence in resultsGeofences){
-                            console.log(previousGeofences.indexOf(resultsGeofences[geofence]))
-                            if (previousGeofences.indexOf(resultsGeofences[geofence])> -1){ 
-                            } else {
-                                entered.push(resultsGeofences[geofence]);
-                            }
-                        }
-
-                        //Update the object list with the stillIn+entered geofences
-                        db.collection('objectlist').update(
-                            {'clientID':body.clientID, 'customID':body.customID},
-                            {$set:{'geofences':stillIn.concat(entered)}},
-                            function(err,result){
-                                if (err != null) {
-                                    callbackErrorHandler(err);
-                                } else{
-                                    //Only send callback if there is meaningful data
-                                    if (entered.length + exited.length > 0){
-                                        console.log("Sending geofence callback");
-                                        //Send the geofence callback request with the entered and exited geofence information
-                                        var reqBody = {'customID':body.customID,'entered':entered,'exited':exited};
-         
-                                        sendRequest(host,path,reqBody);
-                                    }
-                                    else {
-                                        console.log("Not sending geofence callback; no meaningful data to send");
-                                    }
-                                }
-                            }
-                        );
-                    }
                     else{
                         callbackErrorHandler("No geofence data");
                     }
