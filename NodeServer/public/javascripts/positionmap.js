@@ -116,6 +116,7 @@ $(document).ready(function() {
 
                         //Iterate through responses, creating markers and polyline points
                         for (position in response.response){
+                            console.log(response.response[position]);
                             var lat = response.response[position].location.coordinates[1];
                             var lng = response.response[position].location.coordinates[0];
                             var time = response.response[position].time;
