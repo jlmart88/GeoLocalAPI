@@ -551,6 +551,7 @@ function geofenceCallback(req,host,path){
                         });
                         var reqBody = {'customID':body.customID,'entered':resultsGeofences};
                         sendRequest(host,path,reqBody);
+                    }
 
                     else{
                         callbackErrorHandler("No geofence data");
