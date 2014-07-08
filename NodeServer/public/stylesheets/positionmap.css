@@ -60,6 +60,17 @@ input, button {
 	margin-top:0px;
 }
 
+.drawingDataTable, .drawingDataTable tr, .drawingDataTable tr td {
+	font-family: "Helvetica Neue", Helvetica, sans-serif;
+    border:1px solid black; 
+    border-collapse:collapse;
+    white-space: nowrap;
+}
+
+.drawingDataTable tr td {
+	padding: 2px;
+}
+
 .drawingList{
 	margin: 15px auto 0;
     padding: 0;
@@ -70,29 +81,44 @@ a:link {
     outline: none;
 }
 
-ul li {
-    list-style-type: none;
+li {
+	list-style-type: none;
+}
+.drawingList .drawing {
     font-size: 18px;
     background-color: #efefef;
     margin-bottom: 5px;
     padding: 1px;
     text-align: left;
 }
-ul li span {
+
+.drawingList .drawingContents li{
+	font-size: 14px;
+    background-color: #eaeaea;
+    margin-bottom: 5px;
+    padding: 1px;
+    text-align: left;
+}
+
+.drawingList .drawingContents li:hover{
+	background-color: #dadada;
+}
+
+.drawingList .drawing span {
     cursor: text;
 }
-ul li a,
-ul li a:link {
+.drawingList .drawing a,
+.drawingList .drawing a:link {
     float: right;
     display: none;
     text-decoration: none;
     color: #f03;
     padding-right: 3%; 
 }
-ul li:hover{
+.drawingList .drawing:hover{
 	background-color: #dfdfdf;
 }
-ul li a:hover {
+.drawingList .drawing a:hover {
     text-decoration: underline;
 }
 
