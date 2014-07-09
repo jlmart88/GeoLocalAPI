@@ -176,7 +176,7 @@ Returns objects matching the specified parameters in “near” and “matching�
 | *near* | JSON Near |
 | *matching* | JSON Matching |
 |RES | |
-| [JSON Results] \|\| [JSON Object] | |
+|[JSON Results] or [JSON Object]||
 
 |JSON Near||
 |---------|---|
