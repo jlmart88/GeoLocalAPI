@@ -1,3 +1,7 @@
+// JS for GeoLocalization API GUI Mapper
+// TechIdeas
+// Justin Martinez
+
 window.drawingList = {};
 window.infoWindow = new google.maps.InfoWindow();
 

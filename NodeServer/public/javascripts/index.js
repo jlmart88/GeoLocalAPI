@@ -1,3 +1,7 @@
+// JS for GeoLocalization API interface
+// TechIdeas
+// Justin Martinez
+
 var clientSecret = "nomelase";
 
 // DOM Ready =============================================================

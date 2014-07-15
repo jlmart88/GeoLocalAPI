@@ -1,3 +1,8 @@
+/* Node.js Express Engine for GeoLocalization API
+*  TechIDEAS
+*  Justin Martinez
+*/
+
 var express = require('express');
 var path = require('path');
 var favicon = require('static-favicon');
@@ -39,9 +44,8 @@ app.use(function(req,res,next){
 
 app.use('/', routes);
 
-//verify the signature if it is a geo request
+//verify the signature if it is a /geo request
 app.use('/geo/:clientID',function(req,res,next){
-    console.log('here');
     verifySignature(req,function(err,verify){
         if (verify){
             next();
