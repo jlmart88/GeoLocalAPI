@@ -1,9 +1,6 @@
-package net.techideas.geolocalapiandroid;
+package es.techideas.lib.geolocalapi;
 
 import java.text.DecimalFormat;
-
-import net.techideas.geolocalapiandroid.GeoLocalAPIObjectFields.ObjectField;
-import net.techideas.geolocalapiandroid.GeoLocalClientCallback.*;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -15,6 +12,9 @@ import android.location.Location;
 import android.util.Log;
 
 import org.json.*;
+
+import es.techideas.lib.geolocalapi.GeoLocalAPIObjectFields.ObjectField;
+import es.techideas.lib.geolocalapi.GeoLocalClientCallback.*;
 
 public class GeoLocalAPI {
 	

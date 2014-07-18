@@ -114,6 +114,7 @@ function verifySignature(req, callback){
 
     if (missing.length > 0){
         callback("Missing/Invalid Headers: "+missing,false);
+        return;
     }
     else {
         db.collection('clientidlist').findOne({'clientID':req.params.clientID}, function(err, result){

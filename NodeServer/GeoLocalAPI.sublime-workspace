@@ -343,7 +343,15 @@
 			"file": "routes/requesthelper.js",
 			"settings":
 			{
-				"buffer_size": 2327,
+				"buffer_size": 3540,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "app.js",
+			"settings":
+			{
+				"buffer_size": 4893,
 				"line_ending": "Unix"
 			}
 		},
@@ -351,7 +359,31 @@
 			"file": "routes/geo.js",
 			"settings":
 			{
-				"buffer_size": 26468,
+				"buffer_size": 401,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "routes/objects.js",
+			"settings":
+			{
+				"buffer_size": 9211,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "routes/geofences.js",
+			"settings":
+			{
+				"buffer_size": 4005,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "routes/positions.js",
+			"settings":
+			{
+				"buffer_size": 12465,
 				"line_ending": "Unix"
 			}
 		}
@@ -380,6 +412,7 @@
 	},
 	"file_history":
 	[
+		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/NodeServer/package.json",
 		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/NodeServer/public/javascripts/positionmap.js",
 		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/NodeServer/views/positionmap.jade",
 		"/Users/jlmart88/Documents/TechIdeas/GeoLocalAPI/NodeServer/public/javascripts/index.js",
@@ -463,7 +496,7 @@
 	},
 	"find_in_files":
 	{
-		"height": 93.0,
+		"height": 0.0,
 		"where_history":
 		[
 			""
@@ -474,6 +507,17 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"async",
+			"http",
+			"async",
+			"http",
+			"async",
+			"http",
+			"async",
+			"callbackErrorHandler",
+			"callbackError",
+			"querystring",
+			"sendRequest",
 			"databaseResultHandler",
 			"database",
 			"checkParameters",
@@ -517,6 +561,8 @@
 		"regex": false,
 		"replace_history":
 		[
+			"requesthelper.callbackErrorHandler",
+			"requesthelper.sendRequest",
 			"requesthelper.databaseResultHandler",
 			"requesthelper.checkParameters",
 			"getObjects",
@@ -533,7 +579,7 @@
 	"groups":
 	[
 		{
-			"selected": 1,
+			"selected": 5,
 			"sheets":
 			[
 				{
@@ -541,15 +587,15 @@
 					"file": "routes/requesthelper.js",
 					"settings":
 					{
-						"buffer_size": 2327,
+						"buffer_size": 3540,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								2327,
-								2327
+								26,
+								26
 							]
 						],
 						"settings":
@@ -559,25 +605,25 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 591.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"
 				},
 				{
 					"buffer": 1,
-					"file": "routes/geo.js",
+					"file": "app.js",
 					"settings":
 					{
-						"buffer_size": 26468,
+						"buffer_size": 4893,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								25131,
-								25131
+								1302,
+								1058
 							]
 						],
 						"settings":
@@ -587,7 +633,119 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 7966.0,
+						"translation.y": 458.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "routes/geo.js",
+					"settings":
+					{
+						"buffer_size": 401,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								150,
+								150
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "routes/objects.js",
+					"settings":
+					{
+						"buffer_size": 9211,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								64,
+								64
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 190.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "routes/geofences.js",
+					"settings":
+					{
+						"buffer_size": 4005,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								64,
+								64
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "routes/positions.js",
+					"settings":
+					{
+						"buffer_size": 12465,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								188,
+								188
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 18.0,
+						"translation.y": 2165.0,
 						"zoom_level": 1.0
 					},
 					"type": "text"

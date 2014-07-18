@@ -1,4 +1,4 @@
-package net.techideas.geolocalapiandroid;
+package es.techideas.lib.geolocalapi;
 
 import java.io.UnsupportedEncodingException;
 
